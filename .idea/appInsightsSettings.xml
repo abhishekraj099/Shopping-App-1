@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.geniusapk.shopping" />
+                  <option name="mobileSdkAppId" value="1:438976755284:android:c48f80aa00083e72365fc1" />
+                  <option name="projectId" value="shopping-app-admin-d89ac" />
+                  <option name="projectNumber" value="438976755284" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

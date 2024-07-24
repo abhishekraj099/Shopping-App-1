@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "2.0.0"
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -62,6 +63,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -83,11 +86,10 @@ dependencies {
 
     // this is for coil
     implementation("io.coil-kt:coil-compose:2.6.0")
-    implementation ("io.coil-kt:coil-video:2.4.0")
 
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.0-beta01")
+    implementation("androidx.navigation:navigation-compose:2.8.0-beta05")
 
     // Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
