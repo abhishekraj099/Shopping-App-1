@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -13,10 +12,8 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -25,24 +22,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.geniusapk.shopping.domain.models.userData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.geniusapk.shopping.domain.models.UserData
+import com.geniusapk.shopping.presentation.navigation.Routes
+import com.geniusapk.shopping.presentation.navigation.SubNavigation
 import com.geniusapk.shopping.presentation.screens.utils.CustomTextField
+import com.geniusapk.shopping.presentation.screens.utils.SuccessAlertDialog
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
+import com.geniusapk.shopping.ui.theme.SweetPink
 
 
-@Preview(showBackground = true)
 @Composable
 fun SingUpScreenUi(
-    viewModel: ShoppingAppViewModel = hiltViewModel()
+    viewModel: ShoppingAppViewModel = hiltViewModel(),
+    navController: NavController
 
 ) {
 
 
-    val state = viewModel.singUpScreenState.collectAsState()
+    val state = viewModel.singUpScreenState.collectAsStateWithLifecycle()
 
     if (state.value.isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -54,7 +56,17 @@ fun SingUpScreenUi(
             Text(text = state.value.errorMessage!!)
 
         }
-    } else {
+    }else if (state.value.userData != null){
+        SuccessAlertDialog(
+            onClick = {
+                navController.navigate(SubNavigation.MainHomeScreen)
+                navController.popBackStack()
+            }
+        )
+
+    }
+
+    else {
 
 
         var firstName by remember { mutableStateOf("") }
@@ -147,7 +159,7 @@ fun SingUpScreenUi(
 
             Button(
                 onClick = {
-                    val userData = userData(
+                    val userData = UserData(
 
 
                         name = fullName.value,
@@ -163,15 +175,17 @@ fun SingUpScreenUi(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(Color(0xFFFFA5A5))
+                colors = ButtonDefaults.buttonColors(SweetPink)
             ) {
                 Text("Signup", color = Color.White)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Already have an account?")
-                TextButton(onClick = { /* Handle login navigation */ }) {
-                    Text("Login", color = Color(0xFFFFA5A5))
+                TextButton(onClick = {
+                    navController.navigate(Routes.LoginScreen)
+                }) {
+                    Text("Login", color = SweetPink)
                 }
             }
 
@@ -186,15 +200,7 @@ fun SingUpScreenUi(
                 HorizontalDivider(modifier = Modifier.weight(1f))
             }
 
-            OutlinedButton(
-                onClick = { /* Handle Facebook login */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Log in with Facebook")
-            }
+
 
             OutlinedButton(
                 onClick = { /* Handle Google login */ },
