@@ -2,6 +2,15 @@ package com.geniusapk.shopping.presentation.navigation
 
 import kotlinx.serialization.Serializable
 
+
+sealed class SubNavigation{
+    @Serializable
+    object LoginSingUpScreen : SubNavigation()
+    @Serializable
+    object MainHomeScreen : SubNavigation()
+
+}
+
 sealed class Routes {
     @Serializable
     object LoginScreen
