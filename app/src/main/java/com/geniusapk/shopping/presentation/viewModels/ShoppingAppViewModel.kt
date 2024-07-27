@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
-import com.geniusapk.shopping.domain.useCase.CreateUserUseCse
+import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ShoppingAppViewModel @Inject constructor(
-    val createUserUseCse: CreateUserUseCse,
+    val createUserUseCase: CreateUserUseCase,
     val loginUserUseCase: LoginUserUseCase,
     val getUserUseCase: GetUserUseCase
 ) : ViewModel() {
@@ -35,7 +35,7 @@ class ShoppingAppViewModel @Inject constructor(
 
     fun createUser(userData: UserData) {
         viewModelScope.launch {
-            createUserUseCse.createUser(userData).collect {
+            createUserUseCase.createUser(userData).collect {
                 when (it) {
                     is ResultState.Error -> {
                         _singUpScreenState.value = _singUpScreenState.value.copy(

@@ -1,5 +1,7 @@
 package com.geniusapk.shopping.presentation.screens
 
+import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +22,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -27,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.geniusapk.shopping.R
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.presentation.navigation.Routes
 import com.geniusapk.shopping.presentation.navigation.SubNavigation
@@ -45,7 +52,7 @@ fun SingUpScreenUi(
 
 
     val state = viewModel.singUpScreenState.collectAsStateWithLifecycle()
-
+    val context = LocalContext.current
     if (state.value.isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -56,16 +63,14 @@ fun SingUpScreenUi(
             Text(text = state.value.errorMessage!!)
 
         }
-    }else if (state.value.userData != null){
+    } else if (state.value.userData != null) {
         SuccessAlertDialog(
             onClick = {
                 navController.navigate(SubNavigation.MainHomeScreen)
             }
         )
 
-    }
-
-    else {
+    } else {
 
 
         var firstName by remember { mutableStateOf("") }
@@ -74,7 +79,7 @@ fun SingUpScreenUi(
         var password by remember { mutableStateOf("") }
         var confirmPassword by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
-       // var fullName = remember { mutableStateOf("$firstName $lastName") }
+        // var fullName = remember { mutableStateOf("$firstName $lastName") }
 
         Column(
             modifier = Modifier
@@ -83,9 +88,12 @@ fun SingUpScreenUi(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Signup",
+                text = "SignUp",
                 fontSize = 24.sp,
-                modifier = Modifier.padding(vertical = 16.dp)
+                style = TextStyle(fontWeight = FontWeight.Bold),
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .align(Alignment.Start)
             )
 
             CustomTextField(
@@ -94,7 +102,7 @@ fun SingUpScreenUi(
                 label = "First Name",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
                 leadingIcon = Icons.Default.Person,
 
 
@@ -106,7 +114,7 @@ fun SingUpScreenUi(
                 label = "Last Name",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
                 leadingIcon = Icons.Default.Person,
 
                 )
@@ -119,7 +127,7 @@ fun SingUpScreenUi(
                 leadingIcon = Icons.Default.Email,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
             )
             CustomTextField(
                 value = phoneNumber,
@@ -129,7 +137,7 @@ fun SingUpScreenUi(
                 leadingIcon = Icons.Default.Phone,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
             )
 
 
@@ -141,7 +149,7 @@ fun SingUpScreenUi(
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
                 leadingIcon = Icons.Default.Lock,
             )
 
@@ -152,28 +160,47 @@ fun SingUpScreenUi(
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
                 leadingIcon = Icons.Default.Lock,
             )
 
             Button(
                 onClick = {
-                    val userData = UserData(
+
+                    if (
+                        firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank()
+                        && password.isNotBlank() && confirmPassword.isNotBlank() && phoneNumber.isNotBlank()
+                    ) {
+                        if (password == confirmPassword) {
+                            val userData = UserData(
 
 
-                        fastName = firstName,
-                        lastName = lastName,
-                        email = email,
-                        password = password,
-                        phoneNumber = phoneNumber
-                    )
-                    viewModel.createUser(
-                        userData
-                    )
+                                fastName = firstName,
+                                lastName = lastName,
+                                email = email,
+                                password = password,
+                                phoneNumber = phoneNumber
+                            )
+                            viewModel.createUser(
+                                userData
+                            )
+
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Password and Confirm Password do not match",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
+                        Toast.makeText(context, "Please Fill All Fields", Toast.LENGTH_SHORT).show()
+                    }
+
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = 8.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(SweetPink)
             ) {
@@ -192,7 +219,7 @@ fun SingUpScreenUi(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 HorizontalDivider(modifier = Modifier.weight(1f))
@@ -203,12 +230,18 @@ fun SingUpScreenUi(
 
 
             OutlinedButton(
-                onClick = { /* Handle Google login */ },
+                onClick = { },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 shape = RoundedCornerShape(8.dp)
             ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_google),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.size(8.dp))
                 Text("Log in with Google")
             }
         }
