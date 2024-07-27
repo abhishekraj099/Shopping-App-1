@@ -1,5 +1,6 @@
 package com.geniusapk.shopping.presentation.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -57,20 +59,21 @@ fun LoginScreenUi(
 ) {
 
     val state = viewModel.loginScreenState.collectAsStateWithLifecycle()
-val showDialog = remember { mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
 
-    if (state.value.isLoading){
-        Box(modifier = Modifier.fillMaxSize()){
+    if (state.value.isLoading) {
+        Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
 
-    }else if (state.value.errorMessage != null){
-        Box(modifier = Modifier.fillMaxSize()){
-            Text(text = state.value.errorMessage!!)}
-    }
-
-    else if (state.value.userData != null){
+    } else if (state.value.errorMessage != null) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(text = state.value.errorMessage!!)
+        }
+    } else if (state.value.userData != null) {
         SuccessAlertDialog(
             onClick = {
                 navController.navigate(SubNavigation.MainHomeScreen)
@@ -78,8 +81,7 @@ val showDialog = remember { mutableStateOf(false) }
             }
 
         )
-    }
-    else {
+    } else {
 
 
         var email by remember { mutableStateOf("") }
@@ -93,7 +95,7 @@ val showDialog = remember { mutableStateOf(false) }
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Login",
+                text = "LogIn",
                 fontSize = 24.sp,
                 style = TextStyle(fontWeight = FontWeight.Bold),
                 modifier = Modifier
@@ -146,15 +148,25 @@ val showDialog = remember { mutableStateOf(false) }
 
             Button(
                 onClick = {
-                    val userData = UserData(
-                        fastName = "",
-                        lastName = "",
-                        email = email,
-                        password = password,
-                        phoneNumber = ""
-                    )
-                    viewModel.loginUser(userData)
 
+
+                    if (
+                        email.isNotBlank() && password.isNotBlank()
+                    ) {
+
+
+                        val userData = UserData(
+                            fastName = "",
+                            lastName = "",
+                            email = email,
+                            password = password,
+                            phoneNumber = ""
+                        )
+                        viewModel.loginUser(userData)
+
+                    }else{
+                        Toast.makeText(context, "Please Fill All Fields", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -187,18 +199,19 @@ val showDialog = remember { mutableStateOf(false) }
 
 
             OutlinedButton(
-                onClick = { /* Handle Google login */ },
+                onClick = {  },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 shape = RoundedCornerShape(8.dp),
 
-            ) {
+                ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_google),
                     contentDescription = null,
                     modifier = Modifier.size(24.dp)
                 )
+                Spacer(modifier = Modifier.size(8.dp))
                 Text("Log in with Google")
             }
         }

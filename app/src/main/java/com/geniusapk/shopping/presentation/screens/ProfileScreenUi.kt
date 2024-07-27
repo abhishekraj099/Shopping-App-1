@@ -81,7 +81,7 @@ fun ProfileScreenUi(
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Card() {
+
                 SubcomposeAsyncImage(
                     model = "",
                     contentDescription = null,
@@ -94,11 +94,11 @@ fun ProfileScreenUi(
 
                     },
                     error = {
-                        Text(text = "Error loading image")
+                        Text(text = "no image")
                     }
                 )
 
-            }
+
 
             Spacer(modifier = Modifier.size(16.dp))
 
