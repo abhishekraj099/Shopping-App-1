@@ -58,19 +58,22 @@ fun LoginScreenUi(
 
     val state = viewModel.loginScreenState.collectAsStateWithLifecycle()
 val showDialog = remember { mutableStateOf(false) }
+
+
     if (state.value.isLoading){
         Box(modifier = Modifier.fillMaxSize()){
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
+
     }else if (state.value.errorMessage != null){
         Box(modifier = Modifier.fillMaxSize()){
             Text(text = state.value.errorMessage!!)}
     }
+
     else if (state.value.userData != null){
         SuccessAlertDialog(
             onClick = {
                 navController.navigate(SubNavigation.MainHomeScreen)
-                navController.popBackStack()
 
             }
 
@@ -144,9 +147,10 @@ val showDialog = remember { mutableStateOf(false) }
             Button(
                 onClick = {
                     val userData = UserData(
+                        fastName = "",
+                        lastName = "",
                         email = email,
                         password = password,
-                        name = "",
                         phoneNumber = ""
                     )
                     viewModel.loginUser(userData)
