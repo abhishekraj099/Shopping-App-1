@@ -26,11 +26,13 @@ class RepoImpl @Inject constructor(
                     if (it.isSuccessful) {
 
                         firebaseFirestore.collection(USER_COLLECTION)
-                            .document(it.result.user!!.uid.toString()).set(userData).addOnCompleteListener {
+                            .document(it.result.user?.uid.toString()).set(userData).addOnCompleteListener {
                                 if (it.isSuccessful){
                                     trySend(ResultState.Success("User Registered Successfully and add to Firestore"))
                                 }else{
-                                    trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
+                                    if (it.exception != null) {
+                                        trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
+                                    }
                                 }
                             }
 
@@ -72,8 +74,8 @@ class RepoImpl @Inject constructor(
         firebaseFirestore.collection(USER_COLLECTION)
             .document(uid).get().addOnCompleteListener{
                 if (it.isSuccessful){
-                    val data = it.result.toObject(UserData::class.java)
-                    val userDataParent = UserDataParent(it.result.id, data!!)
+                    val data = it.result.toObject(UserData::class.java)!!
+                    val userDataParent = UserDataParent(it.result.id, data)
                     trySend(ResultState.Success(userDataParent))
                 }else{
                     if (it.exception != null) {

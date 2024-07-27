@@ -31,7 +31,7 @@ fun App(firebaseAuth: FirebaseAuth) {
             SubNavigation.MainHomeScreen
         }
 
-        NavHost(navController = navController, startDestination = SubNavigation.LoginSingUpScreen){
+        NavHost(navController = navController, startDestination = startScreen){
 
 
             navigation<SubNavigation.LoginSingUpScreen>(startDestination = Routes.LoginScreen){
@@ -49,7 +49,7 @@ fun App(firebaseAuth: FirebaseAuth) {
             }
 
 
-            navigation<SubNavigation.MainHomeScreen>(startDestination = Routes.HomeScreen){
+            navigation<SubNavigation.MainHomeScreen>(startDestination = Routes.ProfileScreen){
 
 
                 composable<Routes.HomeScreen> {
@@ -57,7 +57,7 @@ fun App(firebaseAuth: FirebaseAuth) {
                 }
 
                 composable<Routes.ProfileScreen> {
-                    ProfileScreenUi(firebaseAuth = firebaseAuth)
+                    ProfileScreenUi(firebaseAuth = firebaseAuth , navController = navController)
                 }
 
                 composable<Routes.WishListScreen> {  }

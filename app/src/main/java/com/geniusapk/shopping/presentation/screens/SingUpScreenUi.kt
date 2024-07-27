@@ -60,7 +60,6 @@ fun SingUpScreenUi(
         SuccessAlertDialog(
             onClick = {
                 navController.navigate(SubNavigation.MainHomeScreen)
-                navController.popBackStack()
             }
         )
 
@@ -75,7 +74,7 @@ fun SingUpScreenUi(
         var password by remember { mutableStateOf("") }
         var confirmPassword by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
-        var fullName = remember { mutableStateOf("$firstName $lastName") }
+       // var fullName = remember { mutableStateOf("$firstName $lastName") }
 
         Column(
             modifier = Modifier
@@ -162,7 +161,8 @@ fun SingUpScreenUi(
                     val userData = UserData(
 
 
-                        name = fullName.value,
+                        fastName = firstName,
+                        lastName = lastName,
                         email = email,
                         password = password,
                         phoneNumber = phoneNumber
