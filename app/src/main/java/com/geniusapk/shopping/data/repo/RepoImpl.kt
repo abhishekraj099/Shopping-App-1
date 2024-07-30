@@ -1,5 +1,6 @@
 package com.geniusapk.shopping.data.repo
 
+import android.net.Uri
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.common.USER_COLLECTION
 import com.geniusapk.shopping.domain.models.UserData
@@ -7,6 +8,7 @@ import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.repo.Repo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -26,10 +28,11 @@ class RepoImpl @Inject constructor(
                     if (it.isSuccessful) {
 
                         firebaseFirestore.collection(USER_COLLECTION)
-                            .document(it.result.user?.uid.toString()).set(userData).addOnCompleteListener {
-                                if (it.isSuccessful){
+                            .document(it.result.user?.uid.toString()).set(userData)
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
                                     trySend(ResultState.Success("User Registered Successfully and add to Firestore"))
-                                }else{
+                                } else {
                                     if (it.exception != null) {
                                         trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
                                     }
@@ -69,15 +72,15 @@ class RepoImpl @Inject constructor(
             }
         }
 
-    override fun getuserById(uid: String): Flow<ResultState<UserDataParent>> = callbackFlow{
+    override fun getuserById(uid: String): Flow<ResultState<UserDataParent>> = callbackFlow {
         trySend(ResultState.Loading)
         firebaseFirestore.collection(USER_COLLECTION)
-            .document(uid).get().addOnCompleteListener{
-                if (it.isSuccessful){
+            .document(uid).get().addOnCompleteListener {
+                if (it.isSuccessful) {
                     val data = it.result.toObject(UserData::class.java)!!
                     val userDataParent = UserDataParent(it.result.id, data)
                     trySend(ResultState.Success(userDataParent))
-                }else{
+                } else {
                     if (it.exception != null) {
                         trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
                     }
@@ -86,5 +89,46 @@ class RepoImpl @Inject constructor(
         awaitClose {
             close()
         }
+    }
+
+    override fun upDateUserData(userDataParent: UserDataParent): Flow<ResultState<String>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+
+            firebaseFirestore.collection(USER_COLLECTION).document(userDataParent.nodeId)
+                .update(userDataParent.userData.toMap())
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        trySend(ResultState.Success("User Data Updated Successfully"))
+                    } else {
+                        if (it.exception != null) {
+                            trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
+                        }
+
+                    }
+                }
+            awaitClose {
+                close()
+            }
+
+        }
+
+    override fun userProfileImage(uri: Uri): Flow<ResultState<String>>  = callbackFlow{
+        trySend(ResultState.Loading)
+        FirebaseStorage.getInstance().reference.child("userProfileImages/${System.currentTimeMillis()}+${firebaseAuth.currentUser?.uid}")
+            .putFile(uri?: Uri.EMPTY).addOnCompleteListener {
+                it.result.storage.downloadUrl.addOnSuccessListener { imageUrl ->
+                    trySend(ResultState.Success(imageUrl.toString()))
+                }
+                if (it.exception != null) {
+                    trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
+                }
+
+            }
+        awaitClose {
+            close()
+        }
+
+
     }
 }

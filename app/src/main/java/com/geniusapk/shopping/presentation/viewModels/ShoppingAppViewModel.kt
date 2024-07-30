@@ -1,5 +1,6 @@
 package com.geniusapk.shopping.presentation.viewModels
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusapk.shopping.common.ResultState
@@ -8,6 +9,8 @@ import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
+import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
+import com.geniusapk.shopping.domain.useCase.userProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,12 +22,13 @@ import javax.inject.Inject
 class ShoppingAppViewModel @Inject constructor(
     val createUserUseCase: CreateUserUseCase,
     val loginUserUseCase: LoginUserUseCase,
-    val getUserUseCase: GetUserUseCase
+    val getUserUseCase: GetUserUseCase,
+    val upDateUserDataUseCase: UpDateUserDataUseCase,
+    val userProfileImageUseCase: userProfileImageUseCase
 ) : ViewModel() {
 
     private val _singUpScreenState = MutableStateFlow(SignUpScreenState())
     val singUpScreenState = _singUpScreenState.asStateFlow()
-
 
     private val _loginScreenState = MutableStateFlow(LoginScreenState())
     val loginScreenState = _loginScreenState.asStateFlow()
@@ -32,86 +36,31 @@ class ShoppingAppViewModel @Inject constructor(
     private val _profileScreenState = MutableStateFlow(ProfileScreenState())
     val profileScreenState = _profileScreenState.asStateFlow()
 
+    private val _upDateScreenState = MutableStateFlow(UpDateScreenState())
+    val upDateScreenState = _upDateScreenState.asStateFlow()
 
-    fun createUser(userData: UserData) {
+    private val _userProfileImageState = MutableStateFlow(uploadUserProfileImageState())
+    val userProfileImageState = _userProfileImageState.asStateFlow()
+
+    fun upLoadUserProfileImage(uri: Uri) {
         viewModelScope.launch {
-            createUserUseCase.createUser(userData).collect {
+            userProfileImageUseCase.userProfileImage(uri).collect {
                 when (it) {
                     is ResultState.Error -> {
-                        _singUpScreenState.value = _singUpScreenState.value.copy(
+                        _userProfileImageState.value = _userProfileImageState.value.copy(
                             isLoading = false,
                             errorMessage = it.message
                         )
                     }
 
-                    ResultState.Loading -> {
-                        _singUpScreenState.value = _singUpScreenState.value.copy(
+                    is ResultState.Loading -> {
+                        _userProfileImageState.value = _userProfileImageState.value.copy(
                             isLoading = true
                         )
                     }
 
                     is ResultState.Success -> {
-                        _singUpScreenState.value = _singUpScreenState.value.copy(
-                            isLoading = false,
-                            userData = it.data
-                        )
-                    }
-                }
-            }
-
-        }
-    }
-
-
-    fun loginUser(userData: UserData) {
-        viewModelScope.launch {
-            loginUserUseCase.loginUser(userData).collect {
-                when (it) {
-                    is ResultState.Error -> {
-                        _loginScreenState.value = _loginScreenState.value.copy(
-                            isLoading = false,
-                            errorMessage = it.message
-                        )
-                    }
-
-                    ResultState.Loading -> {
-                        _loginScreenState.value = _loginScreenState.value.copy(
-                            isLoading = true
-                        )
-                    }
-
-                    is ResultState.Success -> {
-                        _loginScreenState.value = _loginScreenState.value.copy(
-                            isLoading = false,
-                            userData = it.data
-                        )
-                    }
-                }
-            }
-
-        }
-    }
-
-    fun getUserById(uid: String) {
-        viewModelScope.launch {
-            getUserUseCase.getuserById(uid).collectLatest {
-                when (it) {
-                    is ResultState.Error -> {
-                        _profileScreenState.value = _profileScreenState.value.copy(
-                            isLoading = false,
-                            errorMessage = it.message
-                        )
-
-                    }
-
-                    ResultState.Loading -> {
-                        _profileScreenState.value = _profileScreenState.value.copy(
-                            isLoading = true
-                        )
-                    }
-
-                    is ResultState.Success -> {
-                        _profileScreenState.value = _profileScreenState.value.copy(
+                        _userProfileImageState.value = _userProfileImageState.value.copy(
                             isLoading = false,
                             userData = it.data
                         )
@@ -121,24 +70,159 @@ class ShoppingAppViewModel @Inject constructor(
         }
     }
 
-}
 
-data class ProfileScreenState(
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val userData: UserDataParent? = null
-)
+        fun upDateUserData(
+            userDataParent: UserDataParent
+        ) {
+            viewModelScope.launch {
+                upDateUserDataUseCase.upDateUserData(userDataParent = userDataParent).collect {
+                    when (it) {
+                        is ResultState.Error -> {
+                            _upDateScreenState.value = _upDateScreenState.value.copy(
+                                isLoading = false,
+                                errorMessage = it.message
+                            )
+                        }
+
+                        is ResultState.Loading -> {
+                            _upDateScreenState.value = _upDateScreenState.value.copy(
+                                isLoading = true
+                            )
+                        }
+
+                        is ResultState.Success -> {
+                            _upDateScreenState.value = _upDateScreenState.value.copy(
+                                isLoading = false,
+                                userData = it.data
+                            )
+
+                        }
+                    }
+                }
+            }
+        }
 
 
-data class SignUpScreenState(
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val userData: String? = null
+        fun createUser(userData: UserData) {
+            viewModelScope.launch {
+                createUserUseCase.createUser(userData).collect {
+                    when (it) {
+                        is ResultState.Error -> {
+                            _singUpScreenState.value = _singUpScreenState.value.copy(
+                                isLoading = false,
+                                errorMessage = it.message
+                            )
+                        }
 
-)
+                        ResultState.Loading -> {
+                            _singUpScreenState.value = _singUpScreenState.value.copy(
+                                isLoading = true
+                            )
+                        }
 
-data class LoginScreenState(
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val userData: String? = null
-)
+                        is ResultState.Success -> {
+                            _singUpScreenState.value = _singUpScreenState.value.copy(
+                                isLoading = false,
+                                userData = it.data
+                            )
+                        }
+                    }
+                }
+
+            }
+        }
+
+
+        fun loginUser(userData: UserData) {
+            viewModelScope.launch {
+                loginUserUseCase.loginUser(userData).collect {
+                    when (it) {
+                        is ResultState.Error -> {
+                            _loginScreenState.value = _loginScreenState.value.copy(
+                                isLoading = false,
+                                errorMessage = it.message
+                            )
+                        }
+
+                        ResultState.Loading -> {
+                            _loginScreenState.value = _loginScreenState.value.copy(
+                                isLoading = true
+                            )
+                        }
+
+                        is ResultState.Success -> {
+                            _loginScreenState.value = _loginScreenState.value.copy(
+                                isLoading = false,
+                                userData = it.data
+                            )
+                        }
+                    }
+                }
+
+            }
+        }
+
+
+        fun getUserById(uid: String) {
+            viewModelScope.launch {
+                getUserUseCase.getuserById(uid).collectLatest {
+                    when (it) {
+                        is ResultState.Error -> {
+                            _profileScreenState.value = _profileScreenState.value.copy(
+                                isLoading = false,
+                                errorMessage = it.message
+                            )
+
+                        }
+
+                        ResultState.Loading -> {
+                            _profileScreenState.value = _profileScreenState.value.copy(
+                                isLoading = true
+                            )
+                        }
+
+                        is ResultState.Success -> {
+                            _profileScreenState.value = _profileScreenState.value.copy(
+                                isLoading = false,
+                                userData = it.data
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    data class ProfileScreenState(
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        val userData: UserDataParent? = null
+    )
+
+
+    data class SignUpScreenState(
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        val userData: String? = null
+
+    )
+
+    data class LoginScreenState(
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        val userData: String? = null
+    )
+
+    data class UpDateScreenState(
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        val userData: String? = null
+    )
+
+    data class uploadUserProfileImageState(
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        val userData: String? = null
+    )

@@ -50,7 +50,7 @@ fun SingUpScreenUi(
 
 ) {
 
-
+//f
     val state = viewModel.singUpScreenState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     if (state.value.isLoading) {
