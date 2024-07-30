@@ -1,6 +1,7 @@
 package com.geniusapk.shopping.presentation.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -172,7 +173,9 @@ fun LoginScreenUi(
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(SweetPink)
+                colors = ButtonDefaults.buttonColors(SweetPink),
+                border = BorderStroke(1.dp, SweetPink)
+
             ) {
                 Text("Login", color = Color.White)
             }
