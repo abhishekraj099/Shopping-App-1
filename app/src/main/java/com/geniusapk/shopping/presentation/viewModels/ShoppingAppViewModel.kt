@@ -4,12 +4,14 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusapk.shopping.common.ResultState
+import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
 import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
+import com.geniusapk.shopping.domain.useCase.getCategoryInLimit
 import com.geniusapk.shopping.domain.useCase.userProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +26,8 @@ class ShoppingAppViewModel @Inject constructor(
     val loginUserUseCase: LoginUserUseCase,
     val getUserUseCase: GetUserUseCase,
     val upDateUserDataUseCase: UpDateUserDataUseCase,
-    val userProfileImageUseCase: userProfileImageUseCase
+    val userProfileImageUseCase: userProfileImageUseCase,
+    val getCategoryInLimit: getCategoryInLimit
 ) : ViewModel() {
 
     private val _singUpScreenState = MutableStateFlow(SignUpScreenState())
@@ -41,6 +44,38 @@ class ShoppingAppViewModel @Inject constructor(
 
     private val _userProfileImageState = MutableStateFlow(uploadUserProfileImageState())
     val userProfileImageState = _userProfileImageState.asStateFlow()
+
+
+    private val _categoryInLimitScreenState = MutableStateFlow(CategoryScreenState())
+    val categoryInLimitScreenState = _categoryInLimitScreenState.asStateFlow()
+
+
+    fun getCategoriesInLimited() {
+        viewModelScope.launch {
+            getCategoryInLimit.getCategoriesInLimited().collect {
+                when(it){
+                    is ResultState.Error -> {
+                        _categoryInLimitScreenState.value = _categoryInLimitScreenState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _categoryInLimitScreenState.value = _categoryInLimitScreenState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _categoryInLimitScreenState.value = _categoryInLimitScreenState.value.copy(
+                            isLoading = false,
+                            categories = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 
     fun upLoadUserProfileImage(uri: Uri) {
         viewModelScope.launch {
@@ -226,3 +261,11 @@ class ShoppingAppViewModel @Inject constructor(
         val errorMessage: String? = null,
         val userData: String? = null
     )
+
+
+data class CategoryScreenState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val categories: List<CategoryDataModels>? = null
+
+)

@@ -3,6 +3,7 @@ package com.geniusapk.shopping.data.repo
 import android.net.Uri
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.common.USER_COLLECTION
+import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.repo.Repo
@@ -113,10 +114,10 @@ class RepoImpl @Inject constructor(
 
         }
 
-    override fun userProfileImage(uri: Uri): Flow<ResultState<String>>  = callbackFlow{
+    override fun userProfileImage(uri: Uri): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         FirebaseStorage.getInstance().reference.child("userProfileImages/${System.currentTimeMillis()}+${firebaseAuth.currentUser?.uid}")
-            .putFile(uri?: Uri.EMPTY).addOnCompleteListener {
+            .putFile(uri ?: Uri.EMPTY).addOnCompleteListener {
                 it.result.storage.downloadUrl.addOnSuccessListener { imageUrl ->
                     trySend(ResultState.Success(imageUrl.toString()))
                 }
@@ -131,4 +132,22 @@ class RepoImpl @Inject constructor(
 
 
     }
+
+    override fun getCategoriesInLimited(): Flow<ResultState<List<CategoryDataModels>>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection("categories").limit(5).get()
+                .addOnSuccessListener { querySnapshot ->
+
+                    val categories = querySnapshot.documents.mapNotNull { document ->
+                        document.toObject(CategoryDataModels::class.java)
+                    }
+                    trySend(ResultState.Success(categories))
+                }
+                .addOnFailureListener { exception ->
+                    trySend(ResultState.Error(exception.toString()))
+                }
+            awaitClose { close() }
+
+        }
 }
