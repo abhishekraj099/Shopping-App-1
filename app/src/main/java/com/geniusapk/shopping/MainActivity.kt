@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.geniusapk.shopping.presentation.navigation.App
+import com.geniusapk.shopping.presentation.screens.HomeScreenUi
 import com.geniusapk.shopping.ui.theme.ShoppingAppTheme
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +31,8 @@ class MainActivity : ComponentActivity() {
             ShoppingAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box (modifier = Modifier.fillMaxSize().padding(innerPadding)){
-                        App( firebaseAuth)
+                       // App( firebaseAuth)
+                        HomeScreenUi()
 
                     }
                 }
