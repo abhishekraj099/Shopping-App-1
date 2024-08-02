@@ -1,5 +1,6 @@
 package com.geniusapk.shopping.presentation.navigation
 
+import com.geniusapk.shopping.domain.models.ProductDataModels
 import kotlinx.serialization.Serializable
 
 
@@ -31,10 +32,16 @@ sealed class Routes {
     object CartScreen
 
     @Serializable
-    object ProductDetailsScreen
+    data class ProductDetailsScreen(
+       val productID : String ,
+    )
 
     @Serializable
     object CheckoutScreen
+
+    @Serializable
+    object PayScreen
+
 
 
 }
