@@ -9,6 +9,7 @@ import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
+import com.geniusapk.shopping.domain.useCase.AddtoCardUseCase
 import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
@@ -36,9 +37,10 @@ class ShoppingAppViewModel @Inject constructor(
     val upDateUserDataUseCase: UpDateUserDataUseCase,
     val userProfileImageUseCase: userProfileImageUseCase,
     val getCategoryInLimit: getCategoryInLimit,
-    val getProductsUseCase: getProductsUseCase
+    val getProductsUseCase: getProductsUseCase,
+    val addtoCardUseCase: AddtoCardUseCase
 
-) : ViewModel() {
+    ) : ViewModel() {
 
     private val _singUpScreenState = MutableStateFlow(SignUpScreenState())
     val singUpScreenState = _singUpScreenState.asStateFlow()
@@ -55,14 +57,54 @@ class ShoppingAppViewModel @Inject constructor(
     private val _userProfileImageState = MutableStateFlow(uploadUserProfileImageState())
     val userProfileImageState = _userProfileImageState.asStateFlow()
 
+    private val _addToCartState = MutableStateFlow(AddtoCardState())
+    val addToCartState = _addToCartState.asStateFlow()
+
+
+    fun addToCart(
+        productDataModels: ProductDataModels
+    ){
+        viewModelScope.launch {
+            addtoCardUseCase.addtoCard( productDataModels ).collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _addToCartState.value = _addToCartState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _addToCartState.value = _addToCartState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _addToCartState.value = _addToCartState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+
+                    }
+                }
+            }
+        }
+    }
+
+
+    private val _homeScreenState = MutableStateFlow(HomeScreenState())
+    val homeScreenState = _homeScreenState.asStateFlow()
 
 
     init {
         loadHomeScreenData()
     }
 
-    private val _homeScreenState = MutableStateFlow(HomeScreenState())
-    val homeScreenState = _homeScreenState.asStateFlow()
+
+//    private val _homeScreenState = MutableStateFlow(HomeScreenState())
+//    val homeScreenState = _homeScreenState.asStateFlow()
+//
+
+
 
     fun loadHomeScreenData() {
         viewModelScope.launch {
@@ -283,9 +325,9 @@ data class uploadUserProfileImageState(
 )
 
 
-data class CategoryScreenState(
+data class AddtoCardState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val categories: List<CategoryDataModels>? = null
+    val userData: String? = null
 
 )

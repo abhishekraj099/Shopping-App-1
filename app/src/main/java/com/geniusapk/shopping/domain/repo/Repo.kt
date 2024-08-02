@@ -16,5 +16,6 @@ interface Repo {
     fun userProfileImage(uri: Uri):Flow<ResultState<String>>
     fun getCategoriesInLimited (): Flow<ResultState<List<CategoryDataModels>>>
     fun getProductsInLimited(): Flow<ResultState<List<ProductDataModels>>>
+    fun addToCart(productDataModels: ProductDataModels):Flow<ResultState<String>>
 
 }

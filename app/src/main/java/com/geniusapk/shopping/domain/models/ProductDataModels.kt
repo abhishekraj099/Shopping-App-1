@@ -1,5 +1,8 @@
 package com.geniusapk.shopping.domain.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ProductDataModels(
     val name: String = "",
     val description: String = "",

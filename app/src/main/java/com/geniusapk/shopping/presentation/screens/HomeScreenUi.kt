@@ -1,6 +1,7 @@
 package com.geniusapk.shopping.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -27,17 +28,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
+import com.geniusapk.shopping.presentation.navigation.Routes
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
 
-@Preview(showBackground = true)
 @Composable
 fun HomeScreenUi(
     viewModel: ShoppingAppViewModel = hiltViewModel(),
+
 ) {
     val homeState by viewModel.homeScreenState.collectAsStateWithLifecycle()
 
@@ -59,7 +62,7 @@ fun HomeScreenUi(
             homeState.categories?.let { CategoriesSection(it) }
            // homeState.banners?.let { BannerSection() }
             BannerSection()
-            homeState.products?.let { FlashSaleSection(it) }
+            homeState.products?.let { FlashSaleSection(it ) }
         }
     }
 }
@@ -172,7 +175,7 @@ fun BannerSection() {
 }
 
 @Composable
-fun FlashSaleSection(products: List<ProductDataModels>) {
+fun FlashSaleSection(products: List<ProductDataModels> ) {
     Column {
         Row(
             modifier = Modifier
@@ -196,10 +199,17 @@ fun FlashSaleSection(products: List<ProductDataModels>) {
 }
 
 @Composable
-fun ProductCard(product: ProductDataModels) {
+fun ProductCard(product: ProductDataModels
+                ) {
     Card(
         modifier = Modifier
             .width(150.dp)
+//            .clickable {
+//                navController.navigate(Routes.ProductDetailsScreen(
+//                    productID =
+//                ))
+//
+//            }
             .aspectRatio(0.7f),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
