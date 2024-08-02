@@ -4,6 +4,7 @@ import android.net.Uri
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.common.USER_COLLECTION
 import com.geniusapk.shopping.domain.models.CategoryDataModels
+import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.repo.Repo
@@ -135,7 +136,7 @@ class RepoImpl @Inject constructor(
 
     override fun getCategoriesInLimited(): Flow<ResultState<List<CategoryDataModels>>> =
         callbackFlow {
-            trySend(ResultState.Loading)
+           trySend(ResultState.Loading)
             firebaseFirestore.collection("categories").limit(5).get()
                 .addOnSuccessListener { querySnapshot ->
 
@@ -150,4 +151,24 @@ class RepoImpl @Inject constructor(
             awaitClose { close() }
 
         }
+
+    override fun getProductsInLimited(): Flow<ResultState<List<ProductDataModels>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection("Products").limit(10).get()
+            .addOnSuccessListener {
+                val products = it.documents.mapNotNull { document ->
+                    document.toObject(ProductDataModels::class.java)
+                }
+                trySend(ResultState.Success(products))
+
+            }
+            .addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+        awaitClose {
+            close()
+
+        }
+
+    }
 }
