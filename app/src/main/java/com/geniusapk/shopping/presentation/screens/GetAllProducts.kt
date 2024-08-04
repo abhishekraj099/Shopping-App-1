@@ -1,14 +1,19 @@
+package com.geniusapk.shopping.presentation.screens
+
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,41 +27,59 @@ import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GetAllFav(
+fun GetAllProducts(
     viewModel: ShoppingAppViewModel = hiltViewModel(),
-    navController: NavController,
+    navController: NavController
 ) {
-    val getAllFav = viewModel.getAllFavState.collectAsStateWithLifecycle()
-    val getFavData: List<ProductDataModels> = getAllFav.value.userData.orEmpty().filterNotNull()
+    val getAllProductsState = viewModel.homeScreenState.collectAsStateWithLifecycle()
+
+    val productData = getAllProductsState.value.products ?: emptyList()
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getAllFav()
+        viewModel.loadHomeScreenData()
     }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
 
     Scaffold(
+        Modifier.fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text("Wishlist") }
+                title = { Text(
+                    text = "All Products",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                ) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+
+                },
+                scrollBehavior = scrollBehavior
+
             )
         }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
             OutlinedTextField(
-                value = "",
-                onValueChange = { /* TODO: Implement search functionality */ },
+                value = "", // You might want to add a state for this
+                onValueChange = { /* Implement search functionality */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(8.dp),
                 placeholder = { Text("Search") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
             )
 
             when {
-                getAllFav.value.isLoading -> {
+                getAllProductsState.value.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -64,20 +87,20 @@ fun GetAllFav(
                         CircularProgressIndicator()
                     }
                 }
-                getAllFav.value.errorMessage != null -> {
+                getAllProductsState.value.errorMessage != null -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(getAllFav.value.errorMessage!!)
+                        Text("Sorry, Unable to Get Information")
                     }
                 }
-                getFavData.isEmpty() -> {
+                productData.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Your wishlist is empty")
+                        Text("No Products Available")
                     }
                 }
                 else -> {
@@ -87,8 +110,9 @@ fun GetAllFav(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(getFavData) { product ->
-                            ProductCard(product = product, onProductClick = {
+                        items(productData) { product ->
+                            ProductItem(product = product, onProductClick = {
+                                // Navigate to product details
                                 navController.navigate(Routes.EachProductDetailsScreen(product.productId))
                             })
                         }
@@ -99,12 +123,12 @@ fun GetAllFav(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductCard(product: ProductDataModels, onProductClick: () -> Unit) {
+fun ProductItem(product: ProductDataModels, onProductClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onProductClick
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onProductClick)
     ) {
         Column {
             AsyncImage(

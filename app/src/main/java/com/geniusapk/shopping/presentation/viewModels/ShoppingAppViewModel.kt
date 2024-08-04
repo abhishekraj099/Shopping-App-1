@@ -3,6 +3,7 @@ package com.geniusapk.shopping.presentation.viewModels
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.geniusapk.shopping.common.HomeScreenState
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.domain.models.ProductDataModels
@@ -12,6 +13,7 @@ import com.geniusapk.shopping.domain.useCase.AddToFavUseCase
 import com.geniusapk.shopping.domain.useCase.AddtoCardUseCase
 import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllFavUseCase
+import com.geniusapk.shopping.domain.useCase.GetAllProductUseCase
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
 import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
@@ -40,6 +42,7 @@ class ShoppingAppViewModel @Inject constructor(
     private val getProductByID: getProductByID,
     private val addtoFavUseCase: AddToFavUseCase,
     private val getAllFavUseCase: GetAllFavUseCase,
+    private val getAllProductsUseCase: GetAllProductUseCase,
 
     ) : ViewModel() {
 
@@ -58,17 +61,54 @@ class ShoppingAppViewModel @Inject constructor(
     private val _userProfileImageState = MutableStateFlow(uploadUserProfileImageState())
     val userProfileImageState = _userProfileImageState.asStateFlow()
 
+
+    //how to use this , when usr click on button
     private val _addToCartState = MutableStateFlow(AddtoCardState())
     val addToCartState = _addToCartState.asStateFlow()
 
-    private val _getProductByIDState = MutableStateFlow(getProductsState())
+    private val _getProductByIDState = MutableStateFlow(GetProductByIDState())
     val getProductByIDState = _getProductByIDState.asStateFlow()
 
+    //how to use this , when usr click on button
     private val _addtoFavState = MutableStateFlow(AddtoFavState())
     val addtoFavState = _addtoFavState.asStateFlow()
 
     private val _getAllFavState = MutableStateFlow(GetAllFavState())
     val getAllFavState = _getAllFavState.asStateFlow()
+
+    private val _getAllProductsState = MutableStateFlow(GetAllProductsState())
+    val getAllProductsState = _getAllProductsState.asStateFlow()
+
+
+
+    fun getAllProducts(){
+        viewModelScope.launch {
+            getAllProductsUseCase.getAllProduct().collect{
+                when(it){
+                    is ResultState.Loading -> {
+                        _getAllProductsState.value = _getAllProductsState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Error -> {
+                        _getAllProductsState.value = _getAllProductsState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Success ->{
+                        _getAllProductsState.value = _getAllProductsState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+
+        }
+    }
+
+
 
     fun getAllFav(){
         viewModelScope.launch {
@@ -427,7 +467,7 @@ data class AddtoCardState(
 
 )
 
-data class getProductsState(
+data class GetProductByIDState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val userData: ProductDataModels? = null
@@ -448,4 +488,13 @@ data class GetAllFavState(
     val userData: List<ProductDataModels?> = emptyList()
 
 )
+
+
+data class GetAllProductsState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: List<ProductDataModels?> = emptyList()
+
+)
+
 

@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -150,53 +151,26 @@ fun ProfileScreenUi(
 
     } else if (profileScreenState.value.userData != null) {
 
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
+        Scaffold { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                verticalArrangement = Arrangement.Center
+            ) {
 
 // is staring we don,t have user iamge so we will show default image and  when user click on edit button then also user will se default image and if user select image then we will show that image then it will show user image
 
-            if (isEdting.value == false) {
+                if (isEdting.value == false) {
 
-                SubcomposeAsyncImage(
-                    model = profileScreenState.value.userData!!.userData.profileImage,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .align(Alignment.Start),
-                    loading = {
-
-                    },
-                    error = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                )
-            } else {
-
-
-                Box(
-                    modifier = Modifier.size(120.dp),
-                    contentAlignment = Alignment.BottomEnd
-                ) {
                     SubcomposeAsyncImage(
-                        model = imageUri.value,
+                        model = profileScreenState.value.userData!!.userData.profileImage,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(100.dp)
-                            .align(Alignment.Center)
-                            .clip(CircleShape),
-                        // .align(Alignment.Start),
+                            .clip(CircleShape)
+                            .align(Alignment.Start),
                         loading = {
 
                         },
@@ -208,197 +182,226 @@ fun ProfileScreenUi(
                             )
                         }
                     )
-                    IconButton(
-                        onClick = {
-                            pickMedia.launch(
-                                PickVisualMediaRequest(
-                                    ActivityResultContracts.PickVisualMedia.ImageOnly
-                                )
-                            )
-                        },
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
+                } else {
+
+
+                    Box(
+                        modifier = Modifier.size(120.dp),
+                        contentAlignment = Alignment.BottomEnd
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add",
-                            tint = Color.White
+                        SubcomposeAsyncImage(
+                            model = imageUri.value,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .align(Alignment.Center)
+                                .clip(CircleShape),
+                            // .align(Alignment.Start),
+                            loading = {
+
+                            },
+                            error = {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
                         )
+                        IconButton(
+                            onClick = {
+                                pickMedia.launch(
+                                    PickVisualMediaRequest(
+                                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                                    )
+                                )
+                            },
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add",
+                                tint = Color.White
+                            )
+                        }
                     }
+
+
                 }
 
 
-            }
 
-
-
-            Spacer(modifier = Modifier.size(16.dp))
-
-            Row {
-                OutlinedTextField(
-                    value = firstName.value,
-                    modifier = Modifier.weight(1f),
-                    readOnly = if (isEdting.value) false else true,
-
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = SweetPink,
-                        focusedBorderColor = SweetPink
-                    ),
-                    shape = RoundedCornerShape(10.dp),
-
-                    onValueChange = {
-                        firstName.value = it
-
-                    },
-                    label = { Text("First Name") }
-                )
                 Spacer(modifier = Modifier.size(16.dp))
 
+                Row {
+                    OutlinedTextField(
+                        value = firstName.value,
+                        modifier = Modifier.weight(1f),
+                        readOnly = if (isEdting.value) false else true,
 
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = SweetPink,
+                            focusedBorderColor = SweetPink
+                        ),
+                        shape = RoundedCornerShape(10.dp),
+
+                        onValueChange = {
+                            firstName.value = it
+
+                        },
+                        label = { Text("First Name") }
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
+
+
+                    OutlinedTextField(
+                        value = lastName.value,
+                        modifier = Modifier.weight(1f),
+                        readOnly = if (isEdting.value) false else true,
+
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = SweetPink,
+                            focusedBorderColor = SweetPink
+                        ),
+                        onValueChange = {
+                            lastName.value = it
+                        },
+                        shape = RoundedCornerShape(10.dp),
+
+                        label = { Text("Last Name") }
+
+                    )
+                }
+                Spacer(modifier = Modifier.size(16.dp))
                 OutlinedTextField(
-                    value = lastName.value,
-                    modifier = Modifier.weight(1f),
+                    value = email.value,
+                    modifier = Modifier.fillMaxWidth(),
                     readOnly = if (isEdting.value) false else true,
-
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = SweetPink,
                         focusedBorderColor = SweetPink
                     ),
+                    shape = RoundedCornerShape(10.dp),
                     onValueChange = {
-                        lastName.value = it
+                        email.value = it
                     },
-                    shape = RoundedCornerShape(10.dp),
 
-                    label = { Text("Last Name") }
+                    label = { Text("Email") })
+
+                Spacer(modifier = Modifier.size(16.dp))
+                OutlinedTextField(
+                    value = phoneNumber.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = if (isEdting.value) false else true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = SweetPink,
+                        focusedBorderColor = SweetPink
+                    ),
+                    shape = RoundedCornerShape(10.dp),
+                    onValueChange = {
+                        phoneNumber.value = it
+                    },
+                    label = { Text("Phone Number") }
 
                 )
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-            OutlinedTextField(
-                value = email.value,
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = if (isEdting.value) false else true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = SweetPink,
-                    focusedBorderColor = SweetPink
-                ),
-                shape = RoundedCornerShape(10.dp),
-                onValueChange = {
-                    email.value = it
-                },
-
-                label = { Text("Email") })
-
-            Spacer(modifier = Modifier.size(16.dp))
-            OutlinedTextField(
-                value = phoneNumber.value,
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = if (isEdting.value) false else true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = SweetPink,
-                    focusedBorderColor = SweetPink
-                ),
-                shape = RoundedCornerShape(10.dp),
-                onValueChange = {
-                    phoneNumber.value = it
-                },
-                label = { Text("Phone Number") }
-
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            OutlinedTextField(
-                value = address.value,
-                modifier = Modifier.fillMaxWidth(),
-                onValueChange = {
-                    address.value = it
-                },
-                readOnly = if (isEdting.value) false else true,
-
-                shape = RoundedCornerShape(10.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = SweetPink,
-                    focusedBorderColor = SweetPink
-                ),
-
-                label = { Text("Address") }
-            )
-            Spacer(modifier = Modifier.size(16.dp))
-            OutlinedButton(
-                onClick = {
-                    showDialog.value = true
-
-
-                },
-
-                modifier = Modifier.fillMaxWidth(),
-
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(SweetPink)
-            ) {
-                Text("Log Out")
-            }
-
-            if (showDialog.value) {
-                LogOutAlertDialog(
-                    onDismiss = {
-                        showDialog.value = false
+                Spacer(modifier = Modifier.size(16.dp))
+                OutlinedTextField(
+                    value = address.value,
+                    modifier = Modifier.fillMaxWidth(),
+                    onValueChange = {
+                        address.value = it
                     },
-                    onConfirm = {
-                        firebaseAuth.signOut()
-                        navController.navigate(SubNavigation.LoginSingUpScreen)
+                    readOnly = if (isEdting.value) false else true,
+
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = SweetPink,
+                        focusedBorderColor = SweetPink
+                    ),
+
+                    label = { Text("Address") }
+                )
+                Spacer(modifier = Modifier.size(16.dp))
+                OutlinedButton(
+                    onClick = {
+                        showDialog.value = true
+
+
+                    },
+
+                    modifier = Modifier.fillMaxWidth(),
+
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(SweetPink)
+                ) {
+                    Text("Log Out")
+                }
+
+                if (showDialog.value) {
+                    LogOutAlertDialog(
+                        onDismiss = {
+                            showDialog.value = false
+                        },
+                        onConfirm = {
+                            firebaseAuth.signOut()
+                            navController.navigate(SubNavigation.LoginSingUpScreen)
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+
+                if (isEdting.value == false) {
+                    OutlinedButton(
+                        onClick = {
+                            isEdting.value = !isEdting.value
+
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+
+                        ) {
+                        Text("Edit Profile")
                     }
-                )
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-
-            if (isEdting.value == false) {
-                OutlinedButton(
-                    onClick = {
-                        isEdting.value = !isEdting.value
-
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-
-                    ) {
-                    Text("Edit Profile")
-                }
-            } else {
-                OutlinedButton(
-                    onClick = {
+                } else {
+                    OutlinedButton(
+                        onClick = {
 
 
-                        val updatedUserData = UserData(
-                            fastName = firstName.value,
-                            lastName = lastName.value,
-                            email = email.value,
-                            phoneNumber = phoneNumber.value,
-                            address = address.value,
-                            profileImage = imageUrl.value
-                        )
-                        val userDataParent = UserDataParent(
-                            nodeId = profileScreenState.value.userData!!.nodeId,
-                            userData = updatedUserData
-                        )
-                        viewModel.upDateUserData(userDataParent)
-                        isEdting.value = !isEdting.value
+                            val updatedUserData = UserData(
+                                fastName = firstName.value,
+                                lastName = lastName.value,
+                                email = email.value,
+                                phoneNumber = phoneNumber.value,
+                                address = address.value,
+                                profileImage = imageUrl.value
+                            )
+                            val userDataParent = UserDataParent(
+                                nodeId = profileScreenState.value.userData!!.nodeId,
+                                userData = updatedUserData
+                            )
+                            viewModel.upDateUserData(userDataParent)
+                            isEdting.value = !isEdting.value
 
 
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
 
-                    ) {
-                    Text("Save Profile")
+                        ) {
+                        Text("Save Profile")
+                    }
+
+
                 }
 
 
             }
-
-
         }
+
 
 
     }

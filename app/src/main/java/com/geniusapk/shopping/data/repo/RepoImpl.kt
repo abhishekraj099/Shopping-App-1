@@ -178,6 +178,25 @@ class RepoImpl @Inject constructor(
 
     }
 
+    override fun getAllProducts(): Flow<ResultState<List<ProductDataModels>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection("Products").get().addOnSuccessListener {
+            val products = it.documents.mapNotNull { document ->
+                document.toObject(ProductDataModels::class.java)?.apply {
+                    productId = document.id
+                }
+
+            }
+            trySend(ResultState.Success(products))
+        }.addOnFailureListener {
+            trySend(ResultState.Error(it.toString()))
+        }
+        awaitClose {
+            close()
+
+        }
+    }
+
     override fun getProductById(productId: String): Flow<ResultState<ProductDataModels>> =
         callbackFlow {
             trySend(ResultState.Loading)
@@ -199,7 +218,10 @@ class RepoImpl @Inject constructor(
         callbackFlow {
             trySend(ResultState.Loading)
             firebaseFirestore.collection(ADD_TO_CART).document(firebaseAuth.currentUser!!.uid)
-                .set(productDataModels).addOnSuccessListener {
+                .collection(
+                    "User_Cart"
+                )
+                .add(productDataModels).addOnSuccessListener {
                     trySend(ResultState.Success("Product Added To Cart"))
                 }.addOnFailureListener {
                     trySend(ResultState.Error(it.toString()))
@@ -243,7 +265,7 @@ class RepoImpl @Inject constructor(
         awaitClose {
             close()
 
-            }
+        }
 
     }
 }
