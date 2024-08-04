@@ -1,7 +1,10 @@
 package com.geniusapk.shopping.data.repo
 
 import android.net.Uri
+import android.util.Log
+import com.geniusapk.shopping.common.ADDTOFAV
 import com.geniusapk.shopping.common.ADD_TO_CART
+import com.geniusapk.shopping.common.PRODUCT_COLLECTION
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.common.USER_COLLECTION
 import com.geniusapk.shopping.domain.models.CategoryDataModels
@@ -137,7 +140,7 @@ class RepoImpl @Inject constructor(
 
     override fun getCategoriesInLimited(): Flow<ResultState<List<CategoryDataModels>>> =
         callbackFlow {
-           trySend(ResultState.Loading)
+            trySend(ResultState.Loading)
             firebaseFirestore.collection("categories").limit(5).get()
                 .addOnSuccessListener { querySnapshot ->
 
@@ -158,7 +161,9 @@ class RepoImpl @Inject constructor(
         firebaseFirestore.collection("Products").limit(10).get()
             .addOnSuccessListener {
                 val products = it.documents.mapNotNull { document ->
-                    document.toObject(ProductDataModels::class.java)
+                    document.toObject(ProductDataModels::class.java)?.apply {
+                        productId = document.id
+                    }
                 }
                 trySend(ResultState.Success(products))
 
@@ -173,16 +178,72 @@ class RepoImpl @Inject constructor(
 
     }
 
-    override fun addToCart(productDataModels: ProductDataModels): Flow<ResultState<String>> = callbackFlow {
-        trySend(ResultState.Loading)
-        firebaseFirestore.collection(firebaseAuth.currentUser!!.uid).document(ADD_TO_CART).set(productDataModels).addOnSuccessListener {
-            trySend(ResultState.Success("Product Added To Cart"))
-        }.addOnFailureListener {
-            trySend(ResultState.Error(it.toString()))
+    override fun getProductById(productId: String): Flow<ResultState<ProductDataModels>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection(PRODUCT_COLLECTION).document(productId).get()
+                .addOnSuccessListener {
+                    val product = it.toObject(ProductDataModels::class.java)
+                    trySend(ResultState.Success(product!!))
+                    Log.d("test", "getProductById: $product")
+                }.addOnFailureListener {
+                    trySend(ResultState.Error(it.toString()))
+                }
+            awaitClose {
+                close()
+            }
+
         }
+
+    override fun addToCart(productDataModels: ProductDataModels): Flow<ResultState<String>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection(ADD_TO_CART).document(firebaseAuth.currentUser!!.uid)
+                .set(productDataModels).addOnSuccessListener {
+                    trySend(ResultState.Success("Product Added To Cart"))
+                }.addOnFailureListener {
+                    trySend(ResultState.Error(it.toString()))
+                }
+            awaitClose {
+                close()
+            }
+
+        }
+
+    override fun addtoFav(productDataModels: ProductDataModels): Flow<ResultState<String>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection(ADDTOFAV).document(firebaseAuth.currentUser!!.uid)
+                .collection(
+                    "User_Fav"
+
+                ).add(productDataModels)
+                .addOnSuccessListener {
+                    trySend(ResultState.Success("Product Added To Fav"))
+                }.addOnFailureListener {
+                    trySend(ResultState.Error(it.toString()))
+                }
+            awaitClose {
+                close()
+            }
+
+        }
+
+    override fun getAllFav(): Flow<ResultState<List<ProductDataModels>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection(ADDTOFAV).document(firebaseAuth.currentUser!!.uid)
+            .collection("User_Fav").get().addOnSuccessListener {
+                val fav = it.documents.mapNotNull { document ->
+                    document.toObject(ProductDataModels::class.java)
+                }
+                trySend(ResultState.Success(fav))
+            }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
         awaitClose {
             close()
-        }
+
+            }
 
     }
 }
