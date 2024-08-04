@@ -4,9 +4,10 @@ import com.geniusapk.shopping.domain.models.ProductDataModels
 import kotlinx.serialization.Serializable
 
 
-sealed class SubNavigation{
+sealed class SubNavigation {
     @Serializable
     object LoginSingUpScreen : SubNavigation()
+
     @Serializable
     object MainHomeScreen : SubNavigation()
 
@@ -31,10 +32,6 @@ sealed class Routes {
     @Serializable
     object CartScreen
 
-    @Serializable
-    data class ProductDetailsScreen(
-       val productID : String ,
-    )
 
     @Serializable
     object CheckoutScreen
@@ -42,6 +39,13 @@ sealed class Routes {
     @Serializable
     object PayScreen
 
+    @Serializable
+    object SeeAllProductsScreen
+
+    @Serializable
+    data class EachProductDetailsScreen(
+        val productID : String
+    )
 
 
 }

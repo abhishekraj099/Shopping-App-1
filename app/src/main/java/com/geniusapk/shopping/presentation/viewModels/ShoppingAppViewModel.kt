@@ -5,40 +5,41 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.geniusapk.shopping.common.HomeScreenState
 import com.geniusapk.shopping.common.ResultState
-import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
+import com.geniusapk.shopping.domain.useCase.AddToFavUseCase
 import com.geniusapk.shopping.domain.useCase.AddtoCardUseCase
 import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
+import com.geniusapk.shopping.domain.useCase.GetAllFavUseCase
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
 import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
-import com.geniusapk.shopping.domain.useCase.getBannersUseCase
 import com.geniusapk.shopping.domain.useCase.getCategoryInLimit
-import com.geniusapk.shopping.domain.useCase.getProductsUseCase
+import com.geniusapk.shopping.domain.useCase.getProductByID
+import com.geniusapk.shopping.domain.useCase.getProductsInLimitUseCase
 import com.geniusapk.shopping.domain.useCase.userProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ShoppingAppViewModel @Inject constructor(
-    val createUserUseCase: CreateUserUseCase,
-    val loginUserUseCase: LoginUserUseCase,
-    val getUserUseCase: GetUserUseCase,
-    val upDateUserDataUseCase: UpDateUserDataUseCase,
-    val userProfileImageUseCase: userProfileImageUseCase,
-    val getCategoryInLimit: getCategoryInLimit,
-    val getProductsUseCase: getProductsUseCase,
-    val addtoCardUseCase: AddtoCardUseCase
+    private val createUserUseCase: CreateUserUseCase,
+    private val loginUserUseCase: LoginUserUseCase,
+    private val getUserUseCase: GetUserUseCase,
+    private val upDateUserDataUseCase: UpDateUserDataUseCase,
+    private val userProfileImageUseCase: userProfileImageUseCase,
+    private val getCategoryInLimit: getCategoryInLimit,
+    private val getProductsInLimitUseCase: getProductsInLimitUseCase,
+    private val addtoCardUseCase: AddtoCardUseCase,
+    private val getProductByID: getProductByID,
+    private val addtoFavUseCase: AddToFavUseCase,
+    private val getAllFavUseCase: GetAllFavUseCase,
 
     ) : ViewModel() {
 
@@ -59,6 +60,100 @@ class ShoppingAppViewModel @Inject constructor(
 
     private val _addToCartState = MutableStateFlow(AddtoCardState())
     val addToCartState = _addToCartState.asStateFlow()
+
+    private val _getProductByIDState = MutableStateFlow(getProductsState())
+    val getProductByIDState = _getProductByIDState.asStateFlow()
+
+    private val _addtoFavState = MutableStateFlow(AddtoFavState())
+    val addtoFavState = _addtoFavState.asStateFlow()
+
+    private val _getAllFavState = MutableStateFlow(GetAllFavState())
+    val getAllFavState = _getAllFavState.asStateFlow()
+
+    fun getAllFav(){
+        viewModelScope.launch {
+            getAllFavUseCase.getAllFav().collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _getAllFavState.value = _getAllFavState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _getAllFavState.value = _getAllFavState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getAllFavState.value = _getAllFavState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    fun addToFav(productDataModels: ProductDataModels){
+        viewModelScope.launch {
+            addtoFavUseCase.addtoFav(productDataModels).collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _addtoFavState.value = _addtoFavState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _addtoFavState.value = _addtoFavState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _addtoFavState.value = _addtoFavState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+    fun getProductByID(productId: String){
+        viewModelScope.launch {
+            getProductByID.getProductById(productId).collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _getProductByIDState.value = _getProductByIDState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _getProductByIDState.value = _getProductByIDState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getProductByIDState.value = _getProductByIDState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+
+        }
+    }
 
 
     fun addToCart(
@@ -110,7 +205,7 @@ class ShoppingAppViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 getCategoryInLimit.getCategoriesInLimited(),
-                getProductsUseCase.getProducts()
+                getProductsInLimitUseCase.getProductsInLimit()
             ) { categoriesResult, productsResult ->
                 when {
                     categoriesResult is ResultState.Error ->
@@ -331,3 +426,26 @@ data class AddtoCardState(
     val userData: String? = null
 
 )
+
+data class getProductsState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: ProductDataModels? = null
+
+)
+
+data class AddtoFavState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: String? = null
+
+)
+
+
+data class GetAllFavState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: List<ProductDataModels?> = emptyList()
+
+)
+

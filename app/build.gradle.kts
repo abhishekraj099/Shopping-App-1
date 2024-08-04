@@ -90,7 +90,7 @@ dependencies {
 
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.0-beta05")
+    implementation("androidx.navigation:navigation-compose:2.8.0-beta06")
 
     // Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")

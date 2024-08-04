@@ -6,8 +6,8 @@ import com.geniusapk.shopping.domain.repo.Repo
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class getProductsUseCase @Inject constructor(private val repo: Repo) {
-    fun getProducts() : Flow<ResultState<List<ProductDataModels>>> {
+class getProductsInLimitUseCase @Inject constructor(private val repo: Repo) {
+    fun getProductsInLimit() : Flow<ResultState<List<ProductDataModels>>> {
         return repo.getProductsInLimited()
     }
 
