@@ -31,6 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.geniusapk.shopping.presentation.screens.CartScreenUi
 import com.geniusapk.shopping.presentation.screens.EachProductDetailsScreenUi
 import com.geniusapk.shopping.presentation.screens.HomeScreenUi
 import com.geniusapk.shopping.presentation.screens.LoginScreenUi
@@ -139,7 +140,11 @@ fun App(firebaseAuth: FirebaseAuth) {
                         )
                     }
 
-                    composable<Routes.CartScreen> { }
+                    composable<Routes.CartScreen> {
+                        CartScreenUi(
+                            navController = navController
+                        )
+                    }
                     composable<Routes.PayScreen> {
                         PayScreen()
                     }

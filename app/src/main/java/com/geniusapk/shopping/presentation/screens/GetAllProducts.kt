@@ -31,12 +31,12 @@ fun GetAllProducts(
     viewModel: ShoppingAppViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val getAllProductsState = viewModel.homeScreenState.collectAsStateWithLifecycle()
+    val getAllProductsState = viewModel.getAllProductsState.collectAsStateWithLifecycle()
 
-    val productData = getAllProductsState.value.products ?: emptyList()
+    val productData = getAllProductsState.value.userData ?: emptyList()
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.loadHomeScreenData()
+        viewModel.getAllProducts()
     }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -111,7 +111,7 @@ fun GetAllProducts(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(productData) { product ->
-                            ProductItem(product = product, onProductClick = {
+                            ProductItem(product = product!!, onProductClick = {
                                 // Navigate to product details
                                 navController.navigate(Routes.EachProductDetailsScreen(product.productId))
                             })

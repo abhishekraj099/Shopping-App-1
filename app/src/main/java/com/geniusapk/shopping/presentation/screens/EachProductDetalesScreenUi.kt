@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
@@ -154,7 +155,21 @@ fun EachProductDetailsScreenUi(
 
 
                         Button(
-                            onClick = { viewModel.addToCart(product) },
+                            onClick = {
+
+                                val cartDataModels = CartDataModels(
+                                    name = product.name,
+                                    image = product.image,
+                                    price = product.price,
+                                    quantity = quantity.toString(),
+                                    size = selectedSize,
+                                    productId = product.productId,
+                                    description = product.description,
+                                    category = product.category
+
+                                )
+                                viewModel.addToCart(cartDataModels = cartDataModels)
+                                      },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(SweetPink)
 

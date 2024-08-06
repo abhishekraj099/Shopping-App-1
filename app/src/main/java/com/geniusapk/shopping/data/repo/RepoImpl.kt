@@ -7,6 +7,7 @@ import com.geniusapk.shopping.common.ADD_TO_CART
 import com.geniusapk.shopping.common.PRODUCT_COLLECTION
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.common.USER_COLLECTION
+import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
@@ -214,14 +215,16 @@ class RepoImpl @Inject constructor(
 
         }
 
-    override fun addToCart(productDataModels: ProductDataModels): Flow<ResultState<String>> =
+    override fun addToCart(cartDataModels: CartDataModels): Flow<ResultState<String>> =
         callbackFlow {
             trySend(ResultState.Loading)
             firebaseFirestore.collection(ADD_TO_CART).document(firebaseAuth.currentUser!!.uid)
                 .collection(
                     "User_Cart"
                 )
-                .add(productDataModels).addOnSuccessListener {
+
+                .add(cartDataModels).addOnSuccessListener {
+                  //  cartDataModels.cartId = it.id
                     trySend(ResultState.Success("Product Added To Cart"))
                 }.addOnFailureListener {
                     trySend(ResultState.Error(it.toString()))
@@ -266,6 +269,25 @@ class RepoImpl @Inject constructor(
             close()
 
         }
+
+    }
+
+    override fun getCart(): Flow<ResultState<List<CartDataModels>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection(ADD_TO_CART).document(firebaseAuth.currentUser!!.uid)
+            .collection("User_Cart").get().addOnSuccessListener {
+                val cart = it.documents.mapNotNull { document ->
+                    document.toObject(CartDataModels::class.java)?.apply {
+                        cartId = document.id
+
+                    }
+                }
+                trySend(ResultState.Success(cart))
+            }
+        awaitClose {
+            close()
+        }
+
 
     }
 }
