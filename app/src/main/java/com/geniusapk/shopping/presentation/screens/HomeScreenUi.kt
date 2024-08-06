@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,6 +32,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.presentation.navigation.Routes
+import com.geniusapk.shopping.presentation.screens.utils.Banner
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
 
@@ -92,7 +94,13 @@ fun HomeScreenUi(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Categories", style = MaterialTheme.typography.titleMedium)
-                    Text("See more", color = SweetPink, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "See more", color = SweetPink,
+                        modifier = Modifier.clickable {
+                            navController.navigate(Routes.AllCategoriesScreen)
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -109,26 +117,28 @@ fun HomeScreenUi(
             }
 
             // Banner Section
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .padding(vertical = 16.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(5) { banner ->
-                    AsyncImage(
-                        model = "https://picsum.photos/250/200",
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillParentMaxHeight()
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                }
-            }
+//            LazyRow(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(180.dp)
+//                    .padding(vertical = 16.dp),
+//                contentPadding = PaddingValues(horizontal = 16.dp),
+//                horizontalArrangement = Arrangement.spacedBy(16.dp)
+//            ) {
+//                items(5) { banner ->
+//                    AsyncImage(
+//                        model = "https://picsum.photos/250/200",
+//                        contentDescription = null,
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier
+//                            .fillParentMaxHeight()
+//                            .aspectRatio(1f)
+//                            .clip(RoundedCornerShape(8.dp))
+//                    )
+//                }
+//            }
+
+            Banner()
 
             // Flash Sale Section
             Column {
@@ -196,12 +206,11 @@ fun CategoryItem(
 
 @Composable
 fun ProductCard(product: ProductDataModels, navController: NavController) {
-    val context = LocalContext.current
     Card(
         modifier = Modifier
             .width(150.dp)
             .clickable {
-                navController.navigate(Routes.EachProductDetailsScreen( productID = product.productId))
+                navController.navigate(Routes.EachProductDetailsScreen(productID = product.productId))
             }
             .aspectRatio(0.7f),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -210,16 +219,32 @@ fun ProductCard(product: ProductDataModels, navController: NavController) {
             AsyncImage(
                 model = product.image,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(product.name, style = MaterialTheme.typography.bodyMedium)
+                    .height(150.dp)
+                    .width(
+                        100.dp
+                    )
+
+                    .clip(RoundedCornerShape(8.dp))
+                    .aspectRatio(1f),
+
+                contentScale = ContentScale.Crop,
+
+                )
+            Column(modifier = Modifier.padding(8.dp))
+            {
+                Text(
+                    text = product.name,
+                    maxLines = 1,
+
+                    style = MaterialTheme.typography.bodyMedium,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "₹${product.price}",
+                        "₹${product.finalPrice}",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -236,7 +261,6 @@ fun ProductCard(product: ProductDataModels, navController: NavController) {
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
-
                 }
             }
         }

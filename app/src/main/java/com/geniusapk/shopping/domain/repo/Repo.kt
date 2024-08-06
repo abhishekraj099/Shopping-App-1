@@ -23,6 +23,7 @@ interface Repo {
     fun addtoFav(productDataModels: ProductDataModels):Flow<ResultState<String>>
     fun getAllFav(): Flow<ResultState<List<ProductDataModels>>>
     fun getCart(): Flow<ResultState<List<CartDataModels>>>
+    fun getAllCategories(): Flow<ResultState<List<CategoryDataModels>>>
 
 
 }

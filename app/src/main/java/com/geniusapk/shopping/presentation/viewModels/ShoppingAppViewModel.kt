@@ -7,12 +7,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.geniusapk.shopping.common.HomeScreenState
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.domain.models.CartDataModels
+import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.useCase.AddToFavUseCase
 import com.geniusapk.shopping.domain.useCase.AddtoCardUseCase
 import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
+import com.geniusapk.shopping.domain.useCase.GetAllCategoriesUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllFavUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllProductUseCase
 import com.geniusapk.shopping.domain.useCase.GetCartUseCase
@@ -46,6 +48,7 @@ class ShoppingAppViewModel @Inject constructor(
     private val getAllFavUseCase: GetAllFavUseCase,
     private val getAllProductsUseCase: GetAllProductUseCase,
     private val getCartUseCase: GetCartUseCase,
+    private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
 
     ) : ViewModel() {
 
@@ -85,6 +88,40 @@ class ShoppingAppViewModel @Inject constructor(
 
     private val _getCartState = MutableStateFlow(GetCartsState())
     val getCartState = _getCartState.asStateFlow()
+
+
+    private val _getAllCategoriesState = MutableStateFlow(GetAllCategoriesState())
+    val getAllCategoriesState = _getAllCategoriesState.asStateFlow()
+
+
+
+
+    fun getAllCategories(){
+        viewModelScope.launch {
+            getAllCategoriesUseCase.getAllCategoriesUseCase().collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _getAllCategoriesState.value = _getAllCategoriesState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _getAllCategoriesState.value = _getAllCategoriesState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getAllCategoriesState.value = _getAllCategoriesState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+
+            }
+        }
+    }
 
 
     fun getCart(){
@@ -536,6 +573,14 @@ data class GetCartsState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val userData: List<CartDataModels?> = emptyList()
+
+)
+
+
+data class GetAllCategoriesState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: List<CategoryDataModels?> = emptyList()
 
 )
 
