@@ -290,4 +290,23 @@ class RepoImpl @Inject constructor(
 
 
     }
+
+    override fun getAllCategories(): Flow<ResultState<List<CategoryDataModels>>>  = callbackFlow {
+        trySend(ResultState.Loading)
+
+        firebaseFirestore.collection("categories").get().addOnSuccessListener {
+            val categories = it.documents.mapNotNull { document ->
+                document.toObject(CategoryDataModels::class.java)
+            }
+            trySend(ResultState.Success(categories))
+
+        }
+            .addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+        awaitClose {
+            close()
+        }
+
+    }
 }

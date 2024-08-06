@@ -48,4 +48,8 @@ sealed class Routes {
     )
 
 
+    @Serializable
+    object AllCategoriesScreen
+
+
 }

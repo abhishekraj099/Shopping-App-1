@@ -1,5 +1,6 @@
 package com.geniusapk.shopping.presentation.navigation
 
+import AllCategoriesScreenUi
 import GetAllFav
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -159,6 +160,14 @@ fun App(firebaseAuth: FirebaseAuth) {
 
                     }
 
+                    composable<Routes.AllCategoriesScreen> {
+                        AllCategoriesScreenUi(
+                            navController = navController
+                        )
+
+
+                    }
+
                 }
 
 
@@ -168,7 +177,7 @@ fun App(firebaseAuth: FirebaseAuth) {
 
 
                 composable<Routes.EachProductDetailsScreen> {
-                    val product : Routes.EachProductDetailsScreen = it.toRoute()
+                    val product: Routes.EachProductDetailsScreen = it.toRoute()
                     EachProductDetailsScreenUi(
                         productID = product.productID,
                         navController = navController
