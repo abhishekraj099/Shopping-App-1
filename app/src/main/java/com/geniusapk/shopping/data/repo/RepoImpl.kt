@@ -7,6 +7,7 @@ import com.geniusapk.shopping.common.ADD_TO_CART
 import com.geniusapk.shopping.common.PRODUCT_COLLECTION
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.common.USER_COLLECTION
+import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
@@ -178,6 +179,25 @@ class RepoImpl @Inject constructor(
 
     }
 
+    override fun getAllProducts(): Flow<ResultState<List<ProductDataModels>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection("Products").get().addOnSuccessListener {
+            val products = it.documents.mapNotNull { document ->
+                document.toObject(ProductDataModels::class.java)?.apply {
+                    productId = document.id
+                }
+
+            }
+            trySend(ResultState.Success(products))
+        }.addOnFailureListener {
+            trySend(ResultState.Error(it.toString()))
+        }
+        awaitClose {
+            close()
+
+        }
+    }
+
     override fun getProductById(productId: String): Flow<ResultState<ProductDataModels>> =
         callbackFlow {
             trySend(ResultState.Loading)
@@ -195,11 +215,16 @@ class RepoImpl @Inject constructor(
 
         }
 
-    override fun addToCart(productDataModels: ProductDataModels): Flow<ResultState<String>> =
+    override fun addToCart(cartDataModels: CartDataModels): Flow<ResultState<String>> =
         callbackFlow {
             trySend(ResultState.Loading)
             firebaseFirestore.collection(ADD_TO_CART).document(firebaseAuth.currentUser!!.uid)
-                .set(productDataModels).addOnSuccessListener {
+                .collection(
+                    "User_Cart"
+                )
+
+                .add(cartDataModels).addOnSuccessListener {
+                  //  cartDataModels.cartId = it.id
                     trySend(ResultState.Success("Product Added To Cart"))
                 }.addOnFailureListener {
                     trySend(ResultState.Error(it.toString()))
@@ -243,7 +268,26 @@ class RepoImpl @Inject constructor(
         awaitClose {
             close()
 
+        }
+
+    }
+
+    override fun getCart(): Flow<ResultState<List<CartDataModels>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection(ADD_TO_CART).document(firebaseAuth.currentUser!!.uid)
+            .collection("User_Cart").get().addOnSuccessListener {
+                val cart = it.documents.mapNotNull { document ->
+                    document.toObject(CartDataModels::class.java)?.apply {
+                        cartId = document.id
+
+                    }
+                }
+                trySend(ResultState.Success(cart))
             }
+        awaitClose {
+            close()
+        }
+
 
     }
 }

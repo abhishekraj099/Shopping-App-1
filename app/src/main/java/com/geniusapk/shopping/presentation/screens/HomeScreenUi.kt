@@ -51,6 +51,8 @@ fun HomeScreenUi(
             Text(text = homeState.errorMessage!!)
         }
     } else {
+
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
