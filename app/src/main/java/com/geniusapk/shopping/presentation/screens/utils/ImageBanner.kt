@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,55 +27,53 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.geniusapk.shopping.R
+import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.ui.theme.SweetPink
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect as LaunchedEffect1
 
 
 @Composable
-fun Banner(modifier: Modifier = Modifier) {
+fun Banner(
+    banners: List<BannerDataModels>
+) {
+    val pagerState = rememberPagerState(pageCount = { banners.size })
+    val scope = rememberCoroutineScope()
 
-    val images = listOf(
-        R.drawable.banner_th,
-        R.drawable.benner_one,
-        R.drawable.banner_two,
-      //  R.drawable.p_four,
-       // R.drawable.p_five,
-    )
-
-    val pagerState = rememberPagerState(pageCount = { images.size })
-
-    LaunchedEffect1(key1 = Unit){
-        while (true){
+    LaunchedEffect1(Unit) {
+        while (true) {
             delay(1500)
-            pagerState.animateScrollToPage((pagerState.currentPage + 1) % images.size)
+            val nextPage = (pagerState.currentPage + 1) % banners.size
+            scope.launch {
+                pagerState.animateScrollToPage(nextPage)
+            }
         }
     }
 
-    Column (
+    Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
         Box(
             modifier = Modifier.wrapContentSize()
-        ){
+        ) {
             HorizontalPager(
                 state = pagerState,
-                modifier.wrapContentSize()
-
-            ){currentPage ->
+                modifier = Modifier.wrapContentSize()
+            ) { currentPage ->
                 Card(
-//                    modifier = modifier.wrapContentSize().padding(10.dp),
-                    modifier = modifier
+                    modifier = Modifier
                         .height(170.dp)
                         .fillMaxWidth()
                         .padding(top = 8.dp, start = 15.dp, end = 15.dp),
                     elevation = CardDefaults.elevatedCardElevation(8.dp),
-                ){
-                    Image(
-                        painter = painterResource(id = images[currentPage]),
-                        contentDescription = null,
+                ) {
+                    AsyncImage(
+                        model = banners[currentPage].image,
+                        contentDescription = banners[currentPage].name,
                         modifier = Modifier.fillMaxWidth(),
                         contentScale = ContentScale.Crop,
                         alignment = Alignment.Center
@@ -83,7 +82,7 @@ fun Banner(modifier: Modifier = Modifier) {
             }
         }
         PageIndicator(
-            pageCount = images.size,
+            pageCount = banners.size,
             currentPage = pagerState.currentPage,
             modifier = Modifier
         )
@@ -97,9 +96,8 @@ fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier) {
         modifier = modifier.padding(top = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        repeat(pageCount){
+        repeat(pageCount) {
             IndicatorDot(isSelected = it == currentPage, modifier = modifier)
-            val color = if (it == currentPage) SweetPink else SweetPink
         }
     }
 }
@@ -110,12 +108,10 @@ fun IndicatorDot(isSelected: Boolean, modifier: Modifier) {
         SelectedDot(modifier)
     else
         Box(
-            modifier  = modifier.padding(2.dp)
+            modifier = modifier.padding(2.dp)
                 .clip(shape = CircleShape)
                 .size(8.dp)
-                .padding(2.dp)
                 .background(color = SweetPink.copy(alpha = 0.5f), CircleShape)
-
         )
 }
 
@@ -127,7 +123,6 @@ fun SelectedDot(modifier: Modifier) {
             .padding(2.dp)
             .height(10.dp)
             .width(28.dp)
-            .padding(2.dp)
             .background(SweetPink.copy(alpha = 0.8f), shape = RoundedCornerShape(5.dp)),
     )
 }

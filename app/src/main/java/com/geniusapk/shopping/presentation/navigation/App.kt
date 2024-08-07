@@ -33,6 +33,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.geniusapk.shopping.presentation.screens.CartScreenUi
+import com.geniusapk.shopping.presentation.screens.CheckOutScreenUi
 import com.geniusapk.shopping.presentation.screens.EachProductDetailsScreenUi
 import com.geniusapk.shopping.presentation.screens.HomeScreenUi
 import com.geniusapk.shopping.presentation.screens.LoginScreenUi
@@ -52,10 +53,10 @@ fun App(firebaseAuth: FirebaseAuth) {
     var selected by remember { mutableIntStateOf(0) }
 
     val bottomNavItems = listOf(
-        BottomNavItem("Home", Icons.Default.Home, unCeldIcon = Icons.Outlined.Home),
-        BottomNavItem("WishList", Icons.Default.Favorite, unCeldIcon = Icons.Outlined.Favorite),
-        BottomNavItem("Cart", Icons.Default.ShoppingCart, unCeldIcon = Icons.Outlined.ShoppingCart),
-        BottomNavItem("Profile", Icons.Default.Person, unCeldIcon = Icons.Outlined.Person),
+        BottomNavItem("Home", Icons.Default.Home, unseletedIcon = Icons.Outlined.Home),
+        BottomNavItem("WishList", Icons.Default.Favorite, unseletedIcon = Icons.Outlined.Favorite),
+        BottomNavItem("Cart", Icons.Default.ShoppingCart, unseletedIcon = Icons.Outlined.ShoppingCart),
+        BottomNavItem("Profile", Icons.Default.Person, unseletedIcon = Icons.Outlined.Person),
 
         )
 
@@ -86,7 +87,7 @@ fun App(firebaseAuth: FirebaseAuth) {
                         },
                         icon = {
                             Icon(
-                                if (selected == index) bottomNavItem.icon else bottomNavItem.unCeldIcon,
+                                if (selected == index) bottomNavItem.icon else bottomNavItem.unseletedIcon,
                                 contentDescription = bottomNavItem.name
                             )
                         },
@@ -186,7 +187,13 @@ fun App(firebaseAuth: FirebaseAuth) {
                     )
                 }
 
-                composable<Routes.CheckoutScreen> { }
+                composable<Routes.CheckoutScreen> {
+                    val product: Routes.EachProductDetailsScreen = it.toRoute()
+                    CheckOutScreenUi(
+                        productID = product.productID,
+                        navController = navController)
+
+                }
 
 
             }
@@ -199,4 +206,4 @@ fun App(firebaseAuth: FirebaseAuth) {
 }
 
 
-data class BottomNavItem(val name: String, val icon: ImageVector, val unCeldIcon: ImageVector)
+data class BottomNavItem(val name: String, val icon: ImageVector, val unseletedIcon: ImageVector)

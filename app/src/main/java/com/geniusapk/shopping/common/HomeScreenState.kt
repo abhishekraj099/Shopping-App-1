@@ -9,5 +9,5 @@ data class HomeScreenState(
     val errorMessage: String? = null,
     val categories: List<CategoryDataModels>? = null,
     val products: List<ProductDataModels>? = null,
-   // val banners: List<BannerDataModels>? = null
+    val banners: List<BannerDataModels>? = null
 )

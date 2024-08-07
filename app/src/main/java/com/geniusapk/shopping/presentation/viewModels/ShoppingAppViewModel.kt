@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.geniusapk.shopping.common.HomeScreenState
 import com.geniusapk.shopping.common.ResultState
+import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
@@ -17,7 +18,9 @@ import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllCategoriesUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllFavUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllProductUseCase
+import com.geniusapk.shopping.domain.useCase.GetBannerUseCase
 import com.geniusapk.shopping.domain.useCase.GetCartUseCase
+import com.geniusapk.shopping.domain.useCase.GetCheckOutUseCase
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
 import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
@@ -49,6 +52,8 @@ class ShoppingAppViewModel @Inject constructor(
     private val getAllProductsUseCase: GetAllProductUseCase,
     private val getCartUseCase: GetCartUseCase,
     private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
+    private val getCheckOutUseCase : GetCheckOutUseCase,
+    private val getBannerUseCase: GetBannerUseCase,
 
     ) : ViewModel() {
 
@@ -92,6 +97,47 @@ class ShoppingAppViewModel @Inject constructor(
 
     private val _getAllCategoriesState = MutableStateFlow(GetAllCategoriesState())
     val getAllCategoriesState = _getAllCategoriesState.asStateFlow()
+
+
+
+    private val _getCheckOutState = MutableStateFlow(GetCheckOutState())
+    val getCheckOutState = _getCheckOutState.asStateFlow()
+
+
+    private val _homeScreenState = MutableStateFlow(HomeScreenState())
+    val homeScreenState = _homeScreenState.asStateFlow()
+
+
+
+
+
+    fun getCheckOut(productId: String){
+        viewModelScope.launch {
+            getCheckOutUseCase.getCheckoutUseCse(productId).collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _getCheckOutState.value = _getCheckOutState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _getCheckOutState.value = _getCheckOutState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getCheckOutState.value = _getCheckOutState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+
+            }
+        }
+    }
+
 
 
 
@@ -297,8 +343,6 @@ class ShoppingAppViewModel @Inject constructor(
     }
 
 
-    private val _homeScreenState = MutableStateFlow(HomeScreenState())
-    val homeScreenState = _homeScreenState.asStateFlow()
 
 
     init {
@@ -311,26 +355,29 @@ class ShoppingAppViewModel @Inject constructor(
 //
 
 
-
     fun loadHomeScreenData() {
         viewModelScope.launch {
             combine(
                 getCategoryInLimit.getCategoriesInLimited(),
-                getProductsInLimitUseCase.getProductsInLimit()
-            ) { categoriesResult, productsResult ->
+                getProductsInLimitUseCase.getProductsInLimit(),
+                getBannerUseCase.getBannerUseCase()
+            ) { categoriesResult, productsResult  , bannerResult->
                 when {
                     categoriesResult is ResultState.Error ->
                         HomeScreenState(isLoading = false, errorMessage = categoriesResult.message)
                     productsResult is ResultState.Error ->
                         HomeScreenState(isLoading = false, errorMessage = productsResult.message)
+                    bannerResult is ResultState.Error ->
+                        HomeScreenState(isLoading = false, errorMessage = bannerResult.message)
 
                     categoriesResult is ResultState.Success &&
-                            productsResult is ResultState.Success
+                            productsResult is ResultState.Success && bannerResult is ResultState.Success
                              ->
                         HomeScreenState(
                             isLoading = false,
                             categories = categoriesResult.data,
                             products = productsResult.data,
+                            banners = bannerResult.data
                         )
                     else -> HomeScreenState(isLoading = true)
                 }
@@ -583,6 +630,16 @@ data class GetAllCategoriesState(
     val userData: List<CategoryDataModels?> = emptyList()
 
 )
+
+
+data class GetCheckOutState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: ProductDataModels? = null
+
+)
+
+
 
 
 
