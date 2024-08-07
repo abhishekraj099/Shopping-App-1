@@ -34,7 +34,9 @@ sealed class Routes {
 
 
     @Serializable
-    object CheckoutScreen
+    data class CheckoutScreen(
+        val productID : String
+    )
 
     @Serializable
     object PayScreen

@@ -138,7 +138,9 @@ fun HomeScreenUi(
 //                }
 //            }
 
-            Banner()
+            homeState.banners?.let { banners ->
+                Banner(banners = banners)
+            }
 
             // Flash Sale Section
             Column {

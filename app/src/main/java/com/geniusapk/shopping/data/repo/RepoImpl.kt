@@ -7,6 +7,7 @@ import com.geniusapk.shopping.common.ADD_TO_CART
 import com.geniusapk.shopping.common.PRODUCT_COLLECTION
 import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.common.USER_COLLECTION
+import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
@@ -224,7 +225,7 @@ class RepoImpl @Inject constructor(
                 )
 
                 .add(cartDataModels).addOnSuccessListener {
-                  //  cartDataModels.cartId = it.id
+                    //  cartDataModels.cartId = it.id
                     trySend(ResultState.Success("Product Added To Cart"))
                 }.addOnFailureListener {
                     trySend(ResultState.Error(it.toString()))
@@ -291,7 +292,7 @@ class RepoImpl @Inject constructor(
 
     }
 
-    override fun getAllCategories(): Flow<ResultState<List<CategoryDataModels>>>  = callbackFlow {
+    override fun getAllCategories(): Flow<ResultState<List<CategoryDataModels>>> = callbackFlow {
         trySend(ResultState.Loading)
 
         firebaseFirestore.collection("categories").get().addOnSuccessListener {
@@ -308,5 +309,42 @@ class RepoImpl @Inject constructor(
             close()
         }
 
+    }
+
+    override fun getCheckout(productId: String): Flow<ResultState<ProductDataModels>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection("Products").document(productId).get()
+                .addOnSuccessListener {
+                    val product = it.toObject(ProductDataModels::class.java)
+                    trySend(ResultState.Success(product!!))
+
+                }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+            awaitClose {
+                close()
+            }
+
+        }
+
+    override fun getBanner(): Flow<ResultState<List<BannerDataModels>>> = callbackFlow {
+
+        trySend(ResultState.Loading)
+
+        firebaseFirestore.collection("banner").get().addOnSuccessListener {
+
+            val banner = it.documents.mapNotNull { document ->
+                document.toObject(BannerDataModels::class.java)
+            }
+            trySend(ResultState.Success(banner))
+        }
+            .addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+        awaitClose {
+            close()
+
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.geniusapk.shopping.domain.repo
 
 import android.net.Uri
 import com.geniusapk.shopping.common.ResultState
+import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.domain.models.ProductDataModels
@@ -24,6 +25,11 @@ interface Repo {
     fun getAllFav(): Flow<ResultState<List<ProductDataModels>>>
     fun getCart(): Flow<ResultState<List<CartDataModels>>>
     fun getAllCategories(): Flow<ResultState<List<CategoryDataModels>>>
+    //i am getting one problome about cart and fav , so i am anable to go cart screen to checkout screen
+
+    fun getCheckout(productId: String): Flow<ResultState<ProductDataModels>>
+
+    fun getBanner(): Flow<ResultState<List<BannerDataModels>>>
 
 
 }
