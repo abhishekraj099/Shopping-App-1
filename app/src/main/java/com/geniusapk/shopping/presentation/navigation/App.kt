@@ -45,7 +45,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
-fun App(firebaseAuth: FirebaseAuth) {
+fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
 
 
     val navController = rememberNavController()
@@ -191,7 +191,8 @@ fun App(firebaseAuth: FirebaseAuth) {
                     val product: Routes.EachProductDetailsScreen = it.toRoute()
                     CheckOutScreenUi(
                         productID = product.productID,
-                        navController = navController)
+                        navController = navController ,
+                        pay = payTest)
 
                 }
 

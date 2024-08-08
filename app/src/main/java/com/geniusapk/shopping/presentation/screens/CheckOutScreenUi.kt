@@ -50,7 +50,8 @@ import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 fun CheckOutScreenUi(
     viewModel: ShoppingAppViewModel = hiltViewModel(),
     navController: NavHostController,
-    productID: String
+    productID: String,
+    pay: () -> Unit
 ) {
     val state = viewModel.getProductByIDState.collectAsStateWithLifecycle()
     val productData = state.value.userData
@@ -240,7 +241,9 @@ fun CheckOutScreenUi(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
-                        onClick = { /* Handle proceed action */ },
+                        onClick = {
+                            pay.invoke()
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Continue to Shipping")

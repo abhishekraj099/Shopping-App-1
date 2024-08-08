@@ -1,6 +1,8 @@
 package com.geniusapk.shopping
 
+import android.app.Activity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,30 +15,84 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.geniusapk.shopping.common.TEST_ID
 import com.geniusapk.shopping.presentation.navigation.App
 import com.geniusapk.shopping.presentation.screens.HomeScreenUi
 import com.geniusapk.shopping.ui.theme.ShoppingAppTheme
 import com.google.firebase.auth.FirebaseAuth
+import com.razorpay.Checkout
+import com.razorpay.PayloadHelper
+import com.razorpay.PaymentResultListener
 import dagger.hilt.android.AndroidEntryPoint
+import org.json.JSONObject
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() , PaymentResultListener {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        Checkout.preload(applicationContext)
+        val co = Checkout()
+
+        co.setKeyID(TEST_ID)
         setContent {
             ShoppingAppTheme {
-                    App( firebaseAuth)
-                     //   HomeScreenUi()
+                App(firebaseAuth  , { payTest() })
+                //   HomeScreenUi()
 //
 
 
             }
         }
     }
-}
 
+
+    fun payTest() {
+
+            /*
+        *  You need to pass the current activity to let Razorpay create CheckoutActivity
+        * */
+            val activity: Activity = this
+            val co = Checkout()
+
+            try {
+                val options = JSONObject()
+                options.put("name", "Razorpay Corp")
+                options.put("description", "Demoing Charges")
+                //You can omit the image option to fetch the image from the dashboard
+                options.put("image", "http://example.com/image/rzp.jpg")
+                options.put("theme.color", "#3399cc");
+                options.put("currency", "INR");
+                options.put("order_id", "order_DBJOWzybf0sJbb");
+                options.put("amount", "50000")//pass amount in currency subunits
+
+                val retryObj =  JSONObject ();
+                retryObj.put("enabled", true);
+                retryObj.put("max_count", 4);
+                options.put("retry", retryObj);
+
+                val prefill = JSONObject()
+                prefill.put("email", "gaurav.kumar@example.com")
+                prefill.put("contact", "9876543210")
+
+                options.put("prefill", prefill)
+                co.open(activity, options)
+            } catch (e: Exception) {
+                Toast.makeText(activity, "Error in payment: " + e.message, Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+            }
+
+    }
+
+    override fun onPaymentSuccess(p0: String?) {
+        Toast.makeText(this, "Payment Success", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onPaymentError(p0: Int, p1: String?) {
+        Toast.makeText(this, "Payment Failed", Toast.LENGTH_SHORT).show()
+    }
+}
