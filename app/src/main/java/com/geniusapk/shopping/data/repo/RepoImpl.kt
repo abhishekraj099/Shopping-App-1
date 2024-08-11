@@ -332,6 +332,8 @@ class RepoImpl @Inject constructor(
 
         trySend(ResultState.Loading)
 
+
+
         firebaseFirestore.collection("banner").get().addOnSuccessListener {
 
             val banner = it.documents.mapNotNull { document ->
