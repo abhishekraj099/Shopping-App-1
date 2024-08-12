@@ -14,17 +14,15 @@ import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,6 +30,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.bottombar.AnimatedBottomBar
+import com.example.bottombar.components.BottomBarItem
+import com.example.bottombar.model.IndicatorDirection
+import com.example.bottombar.model.IndicatorStyle
 import com.geniusapk.shopping.presentation.screens.CartScreenUi
 import com.geniusapk.shopping.presentation.screens.CheckOutScreenUi
 import com.geniusapk.shopping.presentation.screens.EachProductDetailsScreenUi
@@ -41,6 +43,7 @@ import com.geniusapk.shopping.presentation.screens.PayScreen
 import com.geniusapk.shopping.presentation.screens.ProfileScreenUi
 import com.geniusapk.shopping.presentation.screens.SingUpScreenUi
 import com.geniusapk.shopping.presentation.screens.GetAllProducts
+import com.geniusapk.shopping.ui.theme.SweetPink
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -50,9 +53,12 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
 
     val navController = rememberNavController()
 
-    var selected by remember { mutableIntStateOf(0) }
+    var selectedItem by remember { mutableIntStateOf(0) }
 
-    val bottomNavItems = listOf(
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination?.route
+
+    val BottomNavItem = listOf(
         BottomNavItem("Home", Icons.Default.Home, unseletedIcon = Icons.Outlined.Home),
         BottomNavItem("WishList", Icons.Default.Favorite, unseletedIcon = Icons.Outlined.Favorite),
         BottomNavItem("Cart", Icons.Default.ShoppingCart, unseletedIcon = Icons.Outlined.ShoppingCart),
@@ -69,33 +75,50 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
     Scaffold(
         Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination?.route
+            AnimatedBottomBar(
+                selectedItem = selectedItem,
+                itemSize = BottomNavItem.size,
+                containerColor = Color.Transparent,
+               // indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                indicatorColor = SweetPink,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
 
-                bottomNavItems.forEachIndexed { index, bottomNavItem ->
-                    NavigationBarItem(
-                        selected = selected == index,
+                indicatorDirection = IndicatorDirection.BOTTOM,
+
+
+                indicatorStyle = IndicatorStyle.FILLED
+
+
+            ) {
+                BottomNavItem.forEachIndexed { index, navigationItem ->
+                    BottomBarItem(
+                        selected = selectedItem == index,
                         onClick = {
-                            selected = index
+
+                            selectedItem = index
                             when (index) {
                                 0 -> navController.navigate(Routes.HomeScreen)
                                 1 -> navController.navigate(Routes.WishListScreen)
                                 2 -> navController.navigate(Routes.CartScreen)
                                 3 -> navController.navigate(Routes.ProfileScreen)
                             }
+//                                                navController.graph.startDestinationRoute?.let { route ->
+//                                                    popUpTo(route) {
+//                                                        saveState = true
+//                                                    }
+//                                                }
+//                                                launchSingleTop = true
+//                                                restoreState = true
+//                                            }
+
                         },
-                        icon = {
-                            Icon(
-                                if (selected == index) bottomNavItem.icon else bottomNavItem.unseletedIcon,
-                                contentDescription = bottomNavItem.name
-                            )
-                        },
-                        label = { Text(bottomNavItem.name) }
+                        imageVector = navigationItem.icon,
+                        label = navigationItem.name,
+                        containerColor = Color.Transparent,
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
 
         Box(
