@@ -17,13 +17,16 @@ import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -57,6 +60,14 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
+    val shouldShowBottomBar = remember { mutableStateOf(false) }
+
+    LaunchedEffect(currentDestination) {
+        shouldShowBottomBar.value = when (currentDestination) {
+            Routes.LoginScreen::class.qualifiedName, Routes.SingUpScreen::class.qualifiedName -> false
+            else -> true
+        }
+    }
 
     val BottomNavItem = listOf(
         BottomNavItem("Home", Icons.Default.Home, unseletedIcon = Icons.Outlined.Home),
@@ -75,7 +86,9 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
     Scaffold(
         Modifier.fillMaxSize(),
         bottomBar = {
-            AnimatedBottomBar(
+            if (shouldShowBottomBar.value) {
+
+                AnimatedBottomBar(
                 selectedItem = selectedItem,
                 itemSize = BottomNavItem.size,
                 containerColor = Color.Transparent,
@@ -102,14 +115,9 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
                                 2 -> navController.navigate(Routes.CartScreen)
                                 3 -> navController.navigate(Routes.ProfileScreen)
                             }
-//                                                navController.graph.startDestinationRoute?.let { route ->
-//                                                    popUpTo(route) {
-//                                                        saveState = true
-//                                                    }
-//                                                }
-//                                                launchSingleTop = true
-//                                                restoreState = true
-//                                            }
+
+
+
 
                         },
                         imageVector = navigationItem.icon,
@@ -118,15 +126,15 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
                     )
                 }
             }
+            }
         },
     ) { innerPadding ->
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(bottom = if (shouldShowBottomBar.value) innerPadding.calculateBottomPadding() else 0.dp)
         ) {
-
 
             NavHost(navController = navController, startDestination = startScreen) {
 
@@ -222,9 +230,12 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
 
             }
 
+
         }
 
     }
+
+
 
 
 }

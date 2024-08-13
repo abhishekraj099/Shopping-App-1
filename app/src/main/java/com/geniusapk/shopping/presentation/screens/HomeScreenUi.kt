@@ -3,7 +3,19 @@ package com.geniusapk.shopping.presentation.screens
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -13,7 +25,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,6 +58,7 @@ import com.geniusapk.shopping.presentation.screens.utils.Banner
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenUi(
@@ -55,123 +78,110 @@ fun HomeScreenUi(
     } else {
 
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            // Search Bar and Notifications
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    placeholder = { Text("Search") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
-                )
-                IconButton(onClick = { /* Handle notification click */ }) {
-                    Icon(Icons.Default.Notifications, contentDescription = null)
-                }
-            }
+        Scaffold(
 
-            // Categories Section
-            Column {
+        ) { innerPadding ->
+
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Search Bar and Notifications
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Categories", style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        "See more", color = SweetPink,
-                        modifier = Modifier.clickable {
-                            navController.navigate(Routes.AllCategoriesScreen)
-                        },
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(homeState.categories ?: emptyList()) { category ->
-                        CategoryItem(
-                            ImageUrl = category.categoryImage,
-                            Category = category.name
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        placeholder = { Text("Search") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = TextFieldDefaults.textFieldColors(
+                            // containerColor = Color.White,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
                         )
+                    )
+                    IconButton(onClick = { /* Handle notification click */ }) {
+                        Icon(Icons.Default.Notifications, contentDescription = null)
                     }
                 }
-            }
 
-            // Banner Section
-//            LazyRow(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(180.dp)
-//                    .padding(vertical = 16.dp),
-//                contentPadding = PaddingValues(horizontal = 16.dp),
-//                horizontalArrangement = Arrangement.spacedBy(16.dp)
-//            ) {
-//                items(5) { banner ->
-//                    AsyncImage(
-//                        model = "https://picsum.photos/250/200",
-//                        contentDescription = null,
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier
-//                            .fillParentMaxHeight()
-//                            .aspectRatio(1f)
-//                            .clip(RoundedCornerShape(8.dp))
-//                    )
-//                }
-//            }
-
-            homeState.banners?.let { banners ->
-                Banner(banners = banners)
-            }
-
-            // Flash Sale Section
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Flash Sale", style = MaterialTheme.typography.titleMedium)
-
-                    Text(
-                        "See more",
-                        color = SweetPink,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.clickable {
-                            // Handle "See more" click
-                            navController.navigate(Routes.SeeAllProductsScreen)
-                        }
-                    )
-                }
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(homeState.products ?: emptyList()) { product ->
-                        ProductCard(
-                            product = product,
-                            navController = navController
+                // Categories Section
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Categories", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "See more", color = SweetPink,
+                            modifier = Modifier.clickable {
+                                navController.navigate(Routes.AllCategoriesScreen)
+                            },
+                            style = MaterialTheme.typography.bodyMedium
                         )
+                    }
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(homeState.categories ?: emptyList()) { category ->
+                            CategoryItem(
+                                ImageUrl = category.categoryImage,
+                                Category = category.name
+                            )
+                        }
+                    }
+                }
+
+
+
+                homeState.banners?.let { banners ->
+                    Banner(banners = banners)
+                }
+
+                // Flash Sale Section
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Flash Sale", style = MaterialTheme.typography.titleMedium)
+
+                        Text(
+                            "See more",
+                            color = SweetPink,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.clickable {
+                                // Handle "See more" click
+                                navController.navigate(Routes.SeeAllProductsScreen)
+                            }
+                        )
+                    }
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(homeState.products ?: emptyList()) { product ->
+                            ProductCard(
+                                product = product,
+                                navController = navController
+                            )
+                        }
                     }
                 }
             }

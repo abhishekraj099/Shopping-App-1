@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -43,6 +44,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
+import com.geniusapk.shopping.ui.theme.SweetPink
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,8 +79,15 @@ fun CartScreenUi(
                     }
                 },
                 scrollBehavior = scrollBehavior
+
             )
-        }
+
+
+
+
+
+
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -148,7 +157,7 @@ fun CartScreenUi(
                         }
 
                         LazyColumn(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(.6f)
                         ) {
                             items(cartData) { item ->
                                 CartItemCard(item = item!!)
@@ -180,7 +189,9 @@ fun CartScreenUi(
                                 .padding(top = 16.dp)
                                 //.height(56.dp),
                                     ,
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(SweetPink)
+
                         ) {
                             Text("Checkout")
                         }

@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
+import com.geniusapk.shopping.ui.theme.SweetPink
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -244,8 +246,12 @@ fun CheckOutScreenUi(
                         onClick = {
                             pay.invoke()
                         },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(SweetPink)
+
+
+                    )
+                    {
                         Text("Continue to Shipping")
                     }
                 }
