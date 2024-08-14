@@ -53,5 +53,11 @@ sealed class Routes {
     @Serializable
     object AllCategoriesScreen
 
+    @Serializable
+    data class EachCategoryItemsScreen(
+        val categoryName : String
+    )
+
+
 
 }

@@ -27,6 +27,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.presentation.navigation.Routes
+import com.geniusapk.shopping.presentation.screens.utils.ProductItem
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,42 +123,6 @@ fun GetAllProducts(
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun ProductItem(product: ProductDataModels, onProductClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onProductClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(8.dp) // Rounded corners for a more modern look
-    ) {
-        Column {
-            AsyncImage(
-                model = product.image,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = Color.White)
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
-                contentScale = ContentScale.Fit
-            )
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = product.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "₹${product.finalPrice}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
             }
         }
     }

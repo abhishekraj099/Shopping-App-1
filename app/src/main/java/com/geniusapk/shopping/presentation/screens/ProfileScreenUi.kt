@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +32,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +48,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.presentation.navigation.SubNavigation
@@ -55,6 +60,7 @@ import com.geniusapk.shopping.ui.theme.SweetPink
 import com.google.firebase.auth.FirebaseAuth
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreenUi(
     viewModel: ShoppingAppViewModel = hiltViewModel(),
@@ -97,6 +103,7 @@ fun ProfileScreenUi(
             email.value = userData.email ?: ""
             phoneNumber.value = userData.phoneNumber ?: ""
             address.value = userData.address ?: ""
+            imageUrl.value = userData.profileImage ?: ""
         }
     }
 
@@ -151,86 +158,51 @@ fun ProfileScreenUi(
 
     } else if (profileScreenState.value.userData != null) {
 
-        Scaffold { innerPadding ->
+        Scaffold(
+
+        ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(innerPadding).padding(16.dp),
                 verticalArrangement = Arrangement.Center
             ) {
 
 // is staring we don,t have user iamge so we will show default image and  when user click on edit button then also user will se default image and if user select image then we will show that image then it will show user image
 
-                if (isEdting.value == false) {
-
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .align(Alignment.Start)
+                ) {
                     SubcomposeAsyncImage(
-                        model = profileScreenState.value.userData!!.userData.profileImage,
-                        contentDescription = null,
+                        model = if (isEdting.value) imageUri.value else imageUrl.value,
+                        contentDescription = "Profile Picture",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(100.dp)
+                            .size(120.dp)
                             .clip(CircleShape)
-                            .align(Alignment.Start),
-                        loading = {
-
-                        },
-                        error = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-                    )
-                } else {
-
-
-                    Box(
-                        modifier = Modifier.size(120.dp),
-                        contentAlignment = Alignment.BottomEnd
+                            .border(2.dp, color = SweetPink, CircleShape)
                     ) {
-                        SubcomposeAsyncImage(
-                            model = imageUri.value,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .align(Alignment.Center)
-                                .clip(CircleShape),
-                            // .align(Alignment.Start),
-                            loading = {
-
-                            },
-                            error = {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = null,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
-                        )
-                        IconButton(
-                            onClick = {
-                                pickMedia.launch(
-                                    PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                                    )
-                                )
-                            },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add",
-                                tint = Color.White
-                            )
+                        when (painter.state) {
+                            is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
+                            is AsyncImagePainter.State.Error -> Icon(Icons.Default.Person, contentDescription = null)
+                            else -> SubcomposeAsyncImageContent()
                         }
                     }
-
-
+                    if (isEdting.value) {
+                        IconButton(
+                            onClick = {
+                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            },
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.BottomEnd)
+                                .background(MaterialTheme.colorScheme.primary, CircleShape)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Change Picture", tint = Color.White)
+                        }
+                    }
                 }
 
 
@@ -401,7 +373,6 @@ fun ProfileScreenUi(
 
             }
         }
-
 
 
     }

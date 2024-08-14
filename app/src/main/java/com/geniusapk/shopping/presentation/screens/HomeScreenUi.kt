@@ -139,7 +139,10 @@ fun HomeScreenUi(
                         items(homeState.categories ?: emptyList()) { category ->
                             CategoryItem(
                                 ImageUrl = category.categoryImage,
-                                Category = category.name
+                                Category = category.name,
+                                onClick = {
+                                    navController.navigate(Routes.EachCategoryItemsScreen(categoryName = category.name))
+                                }
                             )
                         }
                     }
@@ -193,10 +196,14 @@ fun HomeScreenUi(
 fun CategoryItem(
     ImageUrl: String,
     Category: String,
+    onClick : () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(end = 16.dp)
+        modifier = Modifier.padding(end = 16.dp).clickable {
+            onClick()
+
+        }
     ) {
         Box(
             modifier = Modifier
