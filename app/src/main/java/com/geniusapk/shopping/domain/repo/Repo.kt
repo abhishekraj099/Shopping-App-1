@@ -31,5 +31,7 @@ interface Repo {
 
     fun getBanner(): Flow<ResultState<List<BannerDataModels>>>
 
+    fun getSpecificCategoryItems(categoryName: String): Flow<ResultState<List<ProductDataModels>>>
+
 
 }

@@ -39,6 +39,7 @@ import com.example.bottombar.model.IndicatorDirection
 import com.example.bottombar.model.IndicatorStyle
 import com.geniusapk.shopping.presentation.screens.CartScreenUi
 import com.geniusapk.shopping.presentation.screens.CheckOutScreenUi
+import com.geniusapk.shopping.presentation.screens.EachCategorieProductScreenUi
 import com.geniusapk.shopping.presentation.screens.EachProductDetailsScreenUi
 import com.geniusapk.shopping.presentation.screens.HomeScreenUi
 import com.geniusapk.shopping.presentation.screens.LoginScreenUi
@@ -84,13 +85,15 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
     }
 
     Scaffold(
-        Modifier.fillMaxSize(),
+       // Modifier.fillMaxSize(),
         bottomBar = {
             if (shouldShowBottomBar.value) {
 
                 AnimatedBottomBar(
                 selectedItem = selectedItem,
                 itemSize = BottomNavItem.size,
+                    modifier = Modifier.padding(bottom = 8.dp),
+
                 containerColor = Color.Transparent,
                // indicatorColor = MaterialTheme.colorScheme.primaryContainer,
                 indicatorColor = SweetPink,
@@ -215,6 +218,14 @@ fun App(firebaseAuth: FirebaseAuth ,  payTest : () -> Unit) {
                         navController = navController
 
 
+                    )
+                }
+
+                composable<Routes.EachCategoryItemsScreen> {
+                    val category: Routes.EachCategoryItemsScreen = it.toRoute()
+                    EachCategorieProductScreenUi(
+                        categoryName = category.categoryName,
+                        navController = navController
                     )
                 }
 

@@ -1,3 +1,4 @@
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.CategoryDataModels
+import com.geniusapk.shopping.presentation.navigation.Routes
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,7 +97,8 @@ fun AllCategoriesScreenUi(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(categories) { category ->
-                        CategoryCard(category = category!!)
+                        CategoryCard(category = category!! , onCategoryClick = {navController.navigate(
+                            Routes.EachCategoryItemsScreen(category.name))})
                     }
                 }
             }
@@ -104,11 +107,15 @@ fun AllCategoriesScreenUi(
 }
 
 @Composable
-fun CategoryCard(category: CategoryDataModels) {
+fun CategoryCard(category: CategoryDataModels , onCategoryClick : () -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                onCategoryClick()
+
+            }
 
         ) {
         Column {

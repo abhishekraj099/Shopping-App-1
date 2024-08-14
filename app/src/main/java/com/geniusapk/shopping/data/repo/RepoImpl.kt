@@ -349,4 +349,21 @@ class RepoImpl @Inject constructor(
 
         }
     }
+
+    override fun getSpecificCategoryItems(categoryName: String): Flow<ResultState<List<ProductDataModels>>> = callbackFlow {
+        trySend(ResultState.Loading)
+        firebaseFirestore.collection("Products").whereEqualTo("category", categoryName).get().addOnSuccessListener {
+            val products = it.documents.mapNotNull { document ->
+                document.toObject(ProductDataModels::class.java)?.apply {
+                    productId = document.id
+                }
+            }
+            trySend(ResultState.Success(products))
+        }.addOnFailureListener {
+            trySend(ResultState.Error(it.toString()))
+        }
+        awaitClose {
+        }
+
+    }
 }

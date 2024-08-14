@@ -21,6 +21,7 @@ import com.geniusapk.shopping.domain.useCase.GetAllProductUseCase
 import com.geniusapk.shopping.domain.useCase.GetBannerUseCase
 import com.geniusapk.shopping.domain.useCase.GetCartUseCase
 import com.geniusapk.shopping.domain.useCase.GetCheckOutUseCase
+import com.geniusapk.shopping.domain.useCase.GetSpecifiCategoryItems
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
 import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
@@ -54,6 +55,7 @@ class ShoppingAppViewModel @Inject constructor(
     private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
     private val getCheckOutUseCase : GetCheckOutUseCase,
     private val getBannerUseCase: GetBannerUseCase,
+    private val getSpecifiCategoryItems: GetSpecifiCategoryItems,
 
     ) : ViewModel() {
 
@@ -106,6 +108,41 @@ class ShoppingAppViewModel @Inject constructor(
 
     private val _homeScreenState = MutableStateFlow(HomeScreenState())
     val homeScreenState = _homeScreenState.asStateFlow()
+
+
+
+    private val _getSpecifiCategoryItemsState = MutableStateFlow(GetSpecifiCategoryItemsState())
+    val getSpecifiCategoryItemsState = _getSpecifiCategoryItemsState.asStateFlow()
+
+
+
+    fun getSpecifiCategoryItems(
+        categoryName : String
+    ){
+        viewModelScope.launch {
+            getSpecifiCategoryItems.getSpecifiCategoryItems(categoryName).collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _getSpecifiCategoryItemsState.value = _getSpecifiCategoryItemsState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _getSpecifiCategoryItemsState.value = _getSpecifiCategoryItemsState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _getSpecifiCategoryItemsState.value = _getSpecifiCategoryItemsState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
 
 
 
@@ -636,6 +673,13 @@ data class GetCheckOutState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val userData: ProductDataModels? = null
+
+)
+
+data class GetSpecifiCategoryItemsState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: List<ProductDataModels?> = emptyList()
 
 )
 
