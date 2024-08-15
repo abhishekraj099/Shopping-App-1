@@ -244,7 +244,9 @@ fun CheckOutScreenUi(
 
                     Button(
                         onClick = {
-                            pay.invoke()
+                            pay.invoke(
+                            )
+
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(SweetPink)

@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.geniusapk.shopping.common.TEST_ID
 import com.geniusapk.shopping.presentation.navigation.App
 import com.geniusapk.shopping.presentation.screens.HomeScreenUi
+import com.geniusapk.shopping.presentation.screens.utils.NotificationPermissionRequest
 import com.geniusapk.shopping.ui.theme.ShoppingAppTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.razorpay.Checkout
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() , PaymentResultListener {
         co.setKeyID(TEST_ID)
         setContent {
             ShoppingAppTheme {
+                NotificationPermissionRequest()
                 App(firebaseAuth  , { payTest() })
                 //   HomeScreenUi()
 //
@@ -51,7 +53,12 @@ class MainActivity : ComponentActivity() , PaymentResultListener {
     }
 
 
-    fun payTest() {
+    fun payTest(
+        amount: Int = 1000,
+        name: String = "Test Product",
+        description: String = "Test Description",
+
+    ) {
 
             /*
         *  You need to pass the current activity to let Razorpay create CheckoutActivity
@@ -61,14 +68,14 @@ class MainActivity : ComponentActivity() , PaymentResultListener {
 
             try {
                 val options = JSONObject()
-                options.put("name", "Razorpay Corp")
-                options.put("description", "Demoing Charges")
+                options.put("name", name)
+                options.put("description", description)
                 //You can omit the image option to fetch the image from the dashboard
                 options.put("image", "http://example.com/image/rzp.jpg")
                 options.put("theme.color", "#3399cc");
                 options.put("currency", "INR");
                 options.put("order_id", "order_DBJOWzybf0sJbb");
-                options.put("amount", "50000")//pass amount in currency subunits
+                options.put("amount", amount)//pass amount in currency subunits
 
                 val retryObj =  JSONObject ();
                 retryObj.put("enabled", true);
