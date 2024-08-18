@@ -16,6 +16,7 @@ import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.repo.Repo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +41,8 @@ class RepoImpl @Inject constructor(
                             .addOnCompleteListener {
                                 if (it.isSuccessful) {
                                     trySend(ResultState.Success("User Registered Successfully and add to Firestore"))
+                                    updateFcmToken(firebaseAuth.currentUser?.uid.toString())
+
                                 } else {
                                     if (it.exception != null) {
                                         trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
@@ -69,6 +72,8 @@ class RepoImpl @Inject constructor(
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         trySend(ResultState.Success("User Logged In Successfully"))
+                       updateFcmToken(firebaseAuth.currentUser?.uid.toString())
+
                     } else {
                         if (it.exception != null) {
                             trySend(ResultState.Error(it.exception?.localizedMessage.toString()))
@@ -365,5 +370,17 @@ class RepoImpl @Inject constructor(
         awaitClose {
         }
 
+    }
+
+
+// this is test , i am takeing user tocken in firebase
+    fun updateFcmToken(userId: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                firebaseFirestore.collection("user_tokens").document(userId)
+                    .set(mapOf("token" to token))
+            }
+        }
     }
 }
