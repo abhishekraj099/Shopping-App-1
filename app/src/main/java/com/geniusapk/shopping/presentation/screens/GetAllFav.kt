@@ -9,8 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -64,6 +67,7 @@ fun GetAllFav(
                         CircularProgressIndicator()
                     }
                 }
+
                 getAllFav.value.errorMessage != null -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -72,6 +76,7 @@ fun GetAllFav(
                         Text(getAllFav.value.errorMessage!!)
                     }
                 }
+
                 getFavData.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -80,6 +85,7 @@ fun GetAllFav(
                         Text("Your wishlist is empty")
                     }
                 }
+
                 else -> {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
@@ -119,13 +125,35 @@ fun ProductCard(product: ProductDataModels, onProductClick: () -> Unit) {
                 Text(
                     text = product.name,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = "Rs ${product.price}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+
+                    Text(
+                        text = "Rs ${product.finalPrice}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = "Rs ${product.price}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        textDecoration = TextDecoration.LineThrough,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .align(Alignment.CenterVertically)
+
+                    )
+
+
+                }
             }
         }
     }
