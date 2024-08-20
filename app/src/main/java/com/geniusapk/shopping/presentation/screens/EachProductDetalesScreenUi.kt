@@ -18,6 +18,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,7 +50,8 @@ fun EachProductDetailsScreenUi(
     }
 
     Scaffold(
-        Modifier.fillMaxSize()
+        Modifier
+            .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
 
         topBar = {
@@ -61,7 +63,7 @@ fun EachProductDetailsScreenUi(
                     }
                 },
 
-                        scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior
 
             )
         }
@@ -97,17 +99,47 @@ fun EachProductDetailsScreenUi(
                     }
 
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = product.name,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Rs ${product.price}",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+
+                        ) {
+                            Text(
+                                text = product.name,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                text = "Category: ${product.category}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = "Rs ${product.finalPrice}",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "RS: ${product.price}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                textDecoration = TextDecoration.LineThrough,
+                                color = Color.Gray,
+                                modifier = Modifier
+                                    .padding(vertical = 8.dp)
+                                    .align(
+                                        Alignment.CenterVertically
+                                    )
+                            )
+                        }
+
 
                         Text(
                             text = "Size",
@@ -153,7 +185,12 @@ fun EachProductDetailsScreenUi(
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                         )
-                        Text(text = product.description)
+                        Text(
+                            text = product.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
 
 
                         Button(
@@ -171,7 +208,7 @@ fun EachProductDetailsScreenUi(
 
                                 )
                                 viewModel.addToCart(cartDataModels = cartDataModels)
-                                      },
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(SweetPink)
 
@@ -190,10 +227,11 @@ fun EachProductDetailsScreenUi(
                         }
 
                         OutlinedIconButton(
-                            onClick = { isFavorite = !isFavorite
+                            onClick = {
+                                isFavorite = !isFavorite
                                 viewModel.addToFav(product)
 
-                                      },
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
@@ -201,12 +239,12 @@ fun EachProductDetailsScreenUi(
                             Row {
 
 
-                            Icon(
-                                if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favorite",
-                              //  tint = if (isFavorite) Color.Red else Color.White
-                            )
-                            Text("Add to Wishlist")
+                                Icon(
+                                    if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                    contentDescription = "Favorite",
+                                    //  tint = if (isFavorite) Color.Red else Color.White
+                                )
+                                Text("Add to Wishlist")
                             }
 
 

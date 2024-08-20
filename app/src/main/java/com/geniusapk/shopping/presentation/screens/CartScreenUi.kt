@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -255,7 +256,10 @@ fun CartItemCard(item: CartDataModels, onDelete: () -> Unit) {
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+
                 )
                 Text(
                     text = "Size: ${item.size}",
@@ -281,15 +285,7 @@ fun CartItemCard(item: CartDataModels, onDelete: () -> Unit) {
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-//                Box(
-//                    modifier = Modifier
-//                        .size(40.dp)
-//                        .background(color = Color.Red)
-//                        .clickable { onDelete() },
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text("Delete", color = Color.White)
-//                }
+
 
                 IconButton(onClick = { onDelete() }
 
