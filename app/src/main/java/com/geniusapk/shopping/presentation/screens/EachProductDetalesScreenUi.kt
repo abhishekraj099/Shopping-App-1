@@ -162,7 +162,7 @@ fun EachProductDetailsScreenUi(
                                 val cartDataModels = CartDataModels(
                                     name = product.name,
                                     image = product.image,
-                                    price = product.price,
+                                    price = product.finalPrice,
                                     quantity = quantity.toString(),
                                     size = selectedSize,
                                     productId = product.productId,
