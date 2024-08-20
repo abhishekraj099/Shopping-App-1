@@ -72,7 +72,7 @@ class RepoImpl @Inject constructor(
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
                         trySend(ResultState.Success("User Logged In Successfully"))
-                       updateFcmToken(firebaseAuth.currentUser?.uid.toString())
+                        updateFcmToken(firebaseAuth.currentUser?.uid.toString())
 
                     } else {
                         if (it.exception != null) {
@@ -325,8 +325,8 @@ class RepoImpl @Inject constructor(
                     trySend(ResultState.Success(product!!))
 
                 }.addOnFailureListener {
-                trySend(ResultState.Error(it.toString()))
-            }
+                    trySend(ResultState.Error(it.toString()))
+                }
             awaitClose {
                 close()
             }
@@ -355,25 +355,41 @@ class RepoImpl @Inject constructor(
         }
     }
 
-    override fun getSpecificCategoryItems(categoryName: String): Flow<ResultState<List<ProductDataModels>>> = callbackFlow {
-        trySend(ResultState.Loading)
-        firebaseFirestore.collection("Products").whereEqualTo("category", categoryName).get().addOnSuccessListener {
-            val products = it.documents.mapNotNull { document ->
-                document.toObject(ProductDataModels::class.java)?.apply {
-                    productId = document.id
-                }
+    override fun getSpecificCategoryItems(categoryName: String): Flow<ResultState<List<ProductDataModels>>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection("Products").whereEqualTo("category", categoryName).get()
+                .addOnSuccessListener {
+                    val products = it.documents.mapNotNull { document ->
+                        document.toObject(ProductDataModels::class.java)?.apply {
+                            productId = document.id
+                        }
+                    }
+                    trySend(ResultState.Success(products))
+                }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
             }
-            trySend(ResultState.Success(products))
-        }.addOnFailureListener {
-            trySend(ResultState.Error(it.toString()))
-        }
-        awaitClose {
+            awaitClose {
+            }
+
         }
 
+    override fun deleteFromCart(itemID: String): Flow<ResultState<String>> = callbackFlow {
+        trySend(ResultState.Loading)
+
+        firebaseFirestore.collection(ADD_TO_CART).document(firebaseAuth.currentUser!!.uid)
+            .collection("User_Cart").document(itemID).delete().addOnSuccessListener {
+                trySend(ResultState.Success("Item Deleted From Cart"))
+            }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+        awaitClose {
+
+        }
     }
 
 
-// this is test , i am takeing user tocken in firebase
+    // this is test , i am takeing user tocken in firebase
     fun updateFcmToken(userId: String) {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {

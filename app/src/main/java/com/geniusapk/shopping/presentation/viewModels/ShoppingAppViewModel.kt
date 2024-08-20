@@ -15,6 +15,7 @@ import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.domain.useCase.AddToFavUseCase
 import com.geniusapk.shopping.domain.useCase.AddtoCardUseCase
 import com.geniusapk.shopping.domain.useCase.CreateUserUseCase
+import com.geniusapk.shopping.domain.useCase.DeleteFromCartUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllCategoriesUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllFavUseCase
 import com.geniusapk.shopping.domain.useCase.GetAllProductUseCase
@@ -56,6 +57,7 @@ class ShoppingAppViewModel @Inject constructor(
     private val getCheckOutUseCase : GetCheckOutUseCase,
     private val getBannerUseCase: GetBannerUseCase,
     private val getSpecifiCategoryItems: GetSpecifiCategoryItems,
+    private val deleteFromCartUseCase: DeleteFromCartUseCase,
 
     ) : ViewModel() {
 
@@ -113,6 +115,35 @@ class ShoppingAppViewModel @Inject constructor(
 
     private val _getSpecifiCategoryItemsState = MutableStateFlow(GetSpecifiCategoryItemsState())
     val getSpecifiCategoryItemsState = _getSpecifiCategoryItemsState.asStateFlow()
+
+    private val _deleteFromCartState = MutableStateFlow(DeleteFromCartState())
+    val deleteFromCartState = _deleteFromCartState.asStateFlow()
+
+    fun deleteFromCart(itemID: String){
+        viewModelScope.launch {
+        deleteFromCartUseCase.deleteFromCart(itemID).collect{
+            when(it){
+                is ResultState.Error -> {
+                    _deleteFromCartState.value = _deleteFromCartState.value.copy(
+                        isLoading = false,
+                        errorMessage = it.message
+                    )
+                }
+                is ResultState.Loading -> {
+                    _deleteFromCartState.value = _deleteFromCartState.value.copy(
+                        isLoading = true
+                    )
+                }
+                is ResultState.Success -> {
+                    _deleteFromCartState.value = _deleteFromCartState.value.copy(
+                        isLoading = false,
+                        userData = it.data
+                    )
+                }
+            }
+        }
+        }
+    }
 
 
 
@@ -683,6 +714,14 @@ data class GetSpecifiCategoryItemsState(
 
 )
 
+
+
+data class DeleteFromCartState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    var userData: String? = null
+
+)
 
 
 
