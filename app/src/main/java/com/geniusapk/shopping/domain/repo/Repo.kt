@@ -5,6 +5,7 @@ import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
+import com.geniusapk.shopping.domain.models.FavDataModel
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
@@ -21,8 +22,9 @@ interface Repo {
     fun getAllProducts(): Flow<ResultState<List<ProductDataModels>>>
     fun getProductById(productId: String): Flow<ResultState<ProductDataModels>>
     fun addToCart(cartDataModels: CartDataModels):Flow<ResultState<String>>
-    fun addtoFav(productDataModels: ProductDataModels):Flow<ResultState<String>>
-    fun getAllFav(): Flow<ResultState<List<ProductDataModels>>>
+    fun addtoFav(favDataModel: FavDataModel):Flow<ResultState<String>>
+    fun unFav(itemID: String):Flow<ResultState<String>>
+    fun getAllFav(): Flow<ResultState<List<FavDataModel>>>
     fun getCart(): Flow<ResultState<List<CartDataModels>>>
     fun getAllCategories(): Flow<ResultState<List<CategoryDataModels>>>
     //i am getting one problome about cart and fav , so i am anable to go cart screen to checkout screen

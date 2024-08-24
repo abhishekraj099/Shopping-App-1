@@ -10,6 +10,7 @@ import com.geniusapk.shopping.common.USER_COLLECTION
 import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
+import com.geniusapk.shopping.domain.models.FavDataModel
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
@@ -241,14 +242,14 @@ class RepoImpl @Inject constructor(
 
         }
 
-    override fun addtoFav(productDataModels: ProductDataModels): Flow<ResultState<String>> =
+    override fun addtoFav(favDataModel: FavDataModel): Flow<ResultState<String>> =
         callbackFlow {
             trySend(ResultState.Loading)
             firebaseFirestore.collection(ADDTOFAV).document(firebaseAuth.currentUser!!.uid)
                 .collection(
                     "User_Fav"
 
-                ).add(productDataModels)
+                ).add(favDataModel)
                 .addOnSuccessListener {
                     trySend(ResultState.Success("Product Added To Fav"))
                 }.addOnFailureListener {
@@ -260,12 +261,34 @@ class RepoImpl @Inject constructor(
 
         }
 
-    override fun getAllFav(): Flow<ResultState<List<ProductDataModels>>> = callbackFlow {
+    override fun unFav(itemID: String): Flow<ResultState<String>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection(ADDTOFAV).document(firebaseAuth.currentUser!!.uid)
+                .collection("User_Fav").document(itemID).delete().addOnSuccessListener {
+                    trySend(ResultState.Success("Product Removed From Fav"))
+                    Log.d("test", "unFav: $itemID")
+
+                }.addOnFailureListener {
+                    trySend(ResultState.Error(it.toString()))
+                    Log.d("test", "unFav: ${it.toString()}")
+
+                }
+            awaitClose {
+                close()
+            }
+
+        }
+
+    override fun getAllFav(): Flow<ResultState<List<FavDataModel>>> = callbackFlow {
         trySend(ResultState.Loading)
         firebaseFirestore.collection(ADDTOFAV).document(firebaseAuth.currentUser!!.uid)
             .collection("User_Fav").get().addOnSuccessListener {
                 val fav = it.documents.mapNotNull { document ->
-                    document.toObject(ProductDataModels::class.java)
+                    document.toObject(FavDataModel::class.java)?.apply {
+                        favId = document.id
+
+                    }
                 }
                 trySend(ResultState.Success(fav))
             }.addOnFailureListener {
@@ -367,8 +390,8 @@ class RepoImpl @Inject constructor(
                     }
                     trySend(ResultState.Success(products))
                 }.addOnFailureListener {
-                trySend(ResultState.Error(it.toString()))
-            }
+                    trySend(ResultState.Error(it.toString()))
+                }
             awaitClose {
             }
 
