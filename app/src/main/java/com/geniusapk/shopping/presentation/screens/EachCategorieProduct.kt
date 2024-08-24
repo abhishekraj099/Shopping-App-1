@@ -143,7 +143,8 @@ fun EachCategorieProductScreenUi(
                             ProductItem(product = product!!, onProductClick = {
                                 // Navigate to product details
                                 navController.navigate(Routes.EachProductDetailsScreen(product.productId))
-                            })
+                            }
+                            )
                         }
                     }
                 }

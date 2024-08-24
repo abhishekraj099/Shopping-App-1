@@ -9,6 +9,7 @@ import com.geniusapk.shopping.common.ResultState
 import com.geniusapk.shopping.domain.models.BannerDataModels
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.CategoryDataModels
+import com.geniusapk.shopping.domain.models.FavDataModel
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
@@ -25,6 +26,7 @@ import com.geniusapk.shopping.domain.useCase.GetCheckOutUseCase
 import com.geniusapk.shopping.domain.useCase.GetSpecifiCategoryItems
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
+import com.geniusapk.shopping.domain.useCase.UnfavUseCase
 import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
 import com.geniusapk.shopping.domain.useCase.getCategoryInLimit
 import com.geniusapk.shopping.domain.useCase.getProductByID
@@ -58,7 +60,7 @@ class ShoppingAppViewModel @Inject constructor(
     private val getBannerUseCase: GetBannerUseCase,
     private val getSpecifiCategoryItems: GetSpecifiCategoryItems,
     private val deleteFromCartUseCase: DeleteFromCartUseCase,
-
+    private val unFavUseCase: UnfavUseCase
     ) : ViewModel() {
 
     private val _singUpScreenState = MutableStateFlow(SignUpScreenState())
@@ -118,6 +120,34 @@ class ShoppingAppViewModel @Inject constructor(
 
     private val _deleteFromCartState = MutableStateFlow(DeleteFromCartState())
     val deleteFromCartState = _deleteFromCartState.asStateFlow()
+
+    private val _unFavState = MutableStateFlow(UnFavState())
+    val unFavState = _unFavState.asStateFlow()
+
+    fun unFav(itemID: String){
+        viewModelScope.launch {
+            unFavUseCase.unfav(itemId = itemID).collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _unFavState.value = _unFavState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message)
+                    }
+                    is ResultState.Loading -> {
+                        _unFavState.value = _unFavState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        _unFavState.value = _unFavState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     fun deleteFromCart(itemID: String){
         viewModelScope.launch {
@@ -323,9 +353,9 @@ class ShoppingAppViewModel @Inject constructor(
 
 
 
-    fun addToFav(productDataModels: ProductDataModels){
+    fun addToFav(favDataModel : FavDataModel){
         viewModelScope.launch {
-            addtoFavUseCase.addtoFav(productDataModels).collect{
+            addtoFavUseCase.addtoFav(favDataModel).collect{
                 when(it){
                     is ResultState.Error -> {
                         _addtoFavState.value = _addtoFavState.value.copy(
@@ -663,7 +693,7 @@ data class GetProductByIDState(
 data class AddtoFavState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val userData: String? = null
+    var userData: String? = null
 
 )
 
@@ -671,7 +701,7 @@ data class AddtoFavState(
 data class GetAllFavState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val userData: List<ProductDataModels?> = emptyList()
+    val userData: List<FavDataModel?> = emptyList()
 
 )
 
@@ -717,6 +747,13 @@ data class GetSpecifiCategoryItemsState(
 
 
 data class DeleteFromCartState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    var userData: String? = null
+
+)
+
+data class UnFavState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     var userData: String? = null
