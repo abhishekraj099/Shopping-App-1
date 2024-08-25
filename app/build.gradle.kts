@@ -111,6 +111,10 @@ dependencies {
     implementation ("com.canopas.compose-animated-navigationbar:bottombar:1.0.1")
 
 
+    //loatty ani
+    implementation("com.airbnb.android:lottie-compose:4.0.0")
+
+
 
 
 }

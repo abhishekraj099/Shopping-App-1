@@ -54,6 +54,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.presentation.navigation.Routes
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.screens.utils.Banner
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
@@ -68,8 +69,8 @@ fun HomeScreenUi(
     val homeState by viewModel.homeScreenState.collectAsStateWithLifecycle()
 
     if (homeState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        Box(modifier = Modifier.fillMaxSize() , contentAlignment = Alignment.Center) {
+            AnimatedLoading()
         }
     } else if (homeState.errorMessage != null) {
         Box(modifier = Modifier.fillMaxSize()) {
