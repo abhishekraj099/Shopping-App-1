@@ -54,6 +54,7 @@ import coil.compose.SubcomposeAsyncImageContent
 import com.geniusapk.shopping.domain.models.UserData
 import com.geniusapk.shopping.domain.models.UserDataParent
 import com.geniusapk.shopping.presentation.navigation.SubNavigation
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.screens.utils.LogOutAlertDialog
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
@@ -126,7 +127,7 @@ fun ProfileScreenUi(
         Toast.makeText(context, upDateScreenState.value.errorMessage, Toast.LENGTH_SHORT).show()
     } else if (upDateScreenState.value.isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            AnimatedLoading()
         }
     }
 
@@ -139,7 +140,7 @@ fun ProfileScreenUi(
         Toast.makeText(context, userProfileImageState.value.errorMessage, Toast.LENGTH_SHORT).show()
     } else if (userProfileImageState.value.isLoading) {
         Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            AnimatedLoading()
         }
     }
 
@@ -150,8 +151,8 @@ fun ProfileScreenUi(
 
 
     if (profileScreenState.value.isLoading) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            AnimatedLoading()
         }
     } else if (profileScreenState.value.errorMessage != null) {
         Text(text = profileScreenState.value.errorMessage!!)

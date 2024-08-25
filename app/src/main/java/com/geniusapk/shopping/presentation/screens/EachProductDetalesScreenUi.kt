@@ -53,6 +53,7 @@ import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.CartDataModels
 import com.geniusapk.shopping.domain.models.FavDataModel
 import com.geniusapk.shopping.presentation.navigation.Routes
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
 
@@ -97,7 +98,7 @@ fun EachProductDetailsScreenUi(
         when {
             getProductById.value.isLoading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    AnimatedLoading()
                 }
             }
 

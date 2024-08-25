@@ -43,6 +43,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
 
@@ -94,7 +96,7 @@ fun CheckOutScreenUi(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        AnimatedLoading()
                     }
                 }
 
@@ -113,7 +115,7 @@ fun CheckOutScreenUi(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No Products Available")
+                        AnimatedEmpty()
                     }
                 }
 

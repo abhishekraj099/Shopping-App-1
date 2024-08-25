@@ -44,6 +44,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.CartDataModels
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
 
@@ -105,7 +107,7 @@ fun CartScreenUi(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        AnimatedLoading()
                     }
                 }
 
@@ -128,7 +130,7 @@ fun CartScreenUi(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No Products Available")
+                        AnimatedEmpty()
                     }
                 }
 

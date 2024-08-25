@@ -35,6 +35,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.CategoryDataModels
 import com.geniusapk.shopping.presentation.navigation.Routes
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +78,7 @@ fun AllCategoriesScreenUi(
         when {
             state.value.isLoading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    AnimatedLoading()
                 }
             }
 
@@ -88,7 +90,7 @@ fun AllCategoriesScreenUi(
 
             categories.isEmpty() -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No categories available")
+                    AnimatedEmpty()
                 }
             }
 

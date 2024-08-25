@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,10 +25,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.geniusapk.shopping.R
 import com.geniusapk.shopping.domain.models.FavDataModel
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.presentation.navigation.Routes
 import com.geniusapk.shopping.presentation.screens.ProductCard
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.screens.utils.ProductItem
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 
@@ -81,7 +90,7 @@ fun GetAllFav(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        AnimatedLoading()
                     }
                 }
 
@@ -99,7 +108,8 @@ fun GetAllFav(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Your wishlist is empty")
+                        AnimatedEmpty()
+
                     }
                 }
 

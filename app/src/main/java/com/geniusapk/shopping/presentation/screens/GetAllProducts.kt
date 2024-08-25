@@ -27,6 +27,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.geniusapk.shopping.domain.models.ProductDataModels
 import com.geniusapk.shopping.presentation.navigation.Routes
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
+import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.screens.utils.ProductItem
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 
@@ -89,7 +91,7 @@ fun GetAllProducts(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        AnimatedLoading()
                     }
                 }
                 getAllProductsState.value.errorMessage != null -> {
@@ -105,7 +107,7 @@ fun GetAllProducts(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No Products Available")
+                        AnimatedEmpty()
                     }
                 }
                 else -> {
