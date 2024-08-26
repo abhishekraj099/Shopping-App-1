@@ -1,3 +1,4 @@
+![shopping app (1)](https://github.com/user-attachments/assets/8bd7fc0b-a12d-4624-8351-7d0d00ef00e2)
 
 
 # [Your App Name Here]
