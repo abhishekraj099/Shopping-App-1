@@ -32,6 +32,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +49,8 @@ import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
 import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,16 +62,21 @@ fun CartScreenUi(
     val deleteFromCartState = viewModel.deleteFromCartState.collectAsStateWithLifecycle()
     val cartData = cartState.value.userData ?: emptyList()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = Unit) {
-        viewModel.getCart()
+        coroutineScope.launch(Dispatchers.IO) {
+
+        viewModel.getCart()}
     }
 
     LaunchedEffect(key1 = deleteFromCartState.value.userData) {
+        coroutineScope.launch(Dispatchers.IO) {
+
         if (deleteFromCartState.value.userData != null) {
             viewModel.getCart() // Refresh the cart data
         }
         viewModel.deleteFromCartState.value.userData = null
+        }
     }
 
     Scaffold(
@@ -80,15 +88,10 @@ fun CartScreenUi(
                 title = {
                     Text(
                         text = "Shopping Cart",
-                        style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                     )
                 },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
+
                 scrollBehavior = scrollBehavior
 
             )
@@ -243,7 +246,7 @@ fun CartItemCard(item: CartDataModels, onDelete: () -> Unit) {
                     .padding(start = 16.dp)
             ) {
                 Text(
-                    text = item.name,
+                    text = item!!.name,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
@@ -251,7 +254,7 @@ fun CartItemCard(item: CartDataModels, onDelete: () -> Unit) {
 
                 )
                 Text(
-                    text = "Size: ${item.size}",
+                    text = "Size: ${item?.size}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

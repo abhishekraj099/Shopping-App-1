@@ -23,10 +23,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,6 +40,8 @@ import com.geniusapk.shopping.presentation.navigation.Routes
 import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
 import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,9 +52,12 @@ fun AllCategoriesScreenUi(
     val state = viewModel.getAllCategoriesState.collectAsStateWithLifecycle()
     val categories = state.value.userData ?: emptyList()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getAllCategories()
+        coroutineScope.launch(Dispatchers.IO) {
+
+        viewModel.getAllCategories()}
     }
 
     Scaffold(
@@ -60,8 +67,10 @@ fun AllCategoriesScreenUi(
         topBar = {
             TopAppBar(
                 title = { Text("All Categories",
+                    fontWeight = FontWeight.Bold,
 
-                ) },
+
+                    ) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
