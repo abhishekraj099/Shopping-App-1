@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,6 +61,8 @@ import com.geniusapk.shopping.presentation.screens.utils.LogOutAlertDialog
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,8 +72,13 @@ fun ProfileScreenUi(
     firebaseAuth: FirebaseAuth,
     navController: NavController
 ) {
+
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = true) {
-        viewModel.getUserById(firebaseAuth.currentUser!!.uid)
+        coroutineScope.launch(Dispatchers.IO) {
+
+        viewModel.getUserById(firebaseAuth.currentUser!!.uid)}
 
     }
     val profileScreenState = viewModel.profileScreenState.collectAsStateWithLifecycle()
@@ -98,6 +107,8 @@ fun ProfileScreenUi(
         remember { mutableStateOf(profileScreenState.value.userData?.userData?.address ?: "") }
 
     LaunchedEffect(profileScreenState.value.userData) {
+        coroutineScope.launch(Dispatchers.IO) {
+
         profileScreenState.value.userData?.userData?.let { userData ->
             firstName.value = userData.fastName ?: ""
             lastName.value = userData.lastName ?: ""
@@ -105,6 +116,7 @@ fun ProfileScreenUi(
             phoneNumber.value = userData.phoneNumber ?: ""
             address.value = userData.address ?: ""
             imageUrl.value = userData.profileImage ?: ""
+        }
         }
     }
 
@@ -145,11 +157,6 @@ fun ProfileScreenUi(
     }
 
 
-
-
-
-
-
     if (profileScreenState.value.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             AnimatedLoading()
@@ -160,12 +167,20 @@ fun ProfileScreenUi(
     } else if (profileScreenState.value.userData != null) {
 
         Scaffold(
+            topBar = {
+                TopAppBar(title = {
+                    Text(
+                        "Profile", fontWeight = FontWeight.Bold,
+                    )
+                })
+            }
 
         ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding).padding(16.dp),
+                    .padding(innerPadding)
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.Center
             ) {
 
@@ -187,7 +202,11 @@ fun ProfileScreenUi(
                     ) {
                         when (painter.state) {
                             is AsyncImagePainter.State.Loading -> CircularProgressIndicator()
-                            is AsyncImagePainter.State.Error -> Icon(Icons.Default.Person, contentDescription = null)
+                            is AsyncImagePainter.State.Error -> Icon(
+                                Icons.Default.Person,
+                                contentDescription = null
+                            )
+
                             else -> SubcomposeAsyncImageContent()
                         }
                     }
@@ -201,7 +220,11 @@ fun ProfileScreenUi(
                                 .align(Alignment.BottomEnd)
                                 .background(MaterialTheme.colorScheme.primary, CircleShape)
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = "Change Picture", tint = Color.White)
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Change Picture",
+                                tint = Color.White
+                            )
                         }
                     }
                 }

@@ -36,6 +36,7 @@ interface Repo {
     fun getSpecificCategoryItems(categoryName: String): Flow<ResultState<List<ProductDataModels>>>
 
     fun deleteFromCart(itemID: String): Flow<ResultState<String>>
+    fun searchProducts(query: String): Flow<ResultState<List<ProductDataModels>>>
 
 
 }

@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +57,8 @@ import com.geniusapk.shopping.presentation.navigation.Routes
 import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -72,8 +75,12 @@ fun EachProductDetailsScreenUi(
     var quantity by remember { mutableIntStateOf(1) }
     var isFavorite by remember { mutableStateOf(false) }
 
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(key1 = Unit) {
-        viewModel.getProductByID(productID)
+        coroutineScope.launch(Dispatchers.IO) {
+
+        viewModel.getProductByID(productID)}
     }
 
     Scaffold(

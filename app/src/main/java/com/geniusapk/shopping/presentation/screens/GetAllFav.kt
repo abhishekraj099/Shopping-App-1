@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +40,8 @@ import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
 import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.screens.utils.ProductItem
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,23 +52,27 @@ fun GetAllFav(
     val getAllFav = viewModel.getAllFavState.collectAsStateWithLifecycle()
     val getFavData: List<FavDataModel> = getAllFav.value.userData.orEmpty().filterNotNull()
     val unfav = viewModel.unFavState.collectAsStateWithLifecycle()
-
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(
         key1 = Unit
     ) {
-        viewModel.getAllFav()
+        coroutineScope.launch(Dispatchers.IO) {
+
+        viewModel.getAllFav()}
     }
     LaunchedEffect(key1 = unfav.value.userData) {
+        coroutineScope.launch(Dispatchers.IO) {
+
         if (unfav.value.userData != null) {
             viewModel.getAllFav()
         }
-        viewModel.unFavState.value.userData = null
+        viewModel.unFavState.value.userData = null}
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Wishlist") }
+                title = { Text("Wishlist" , fontWeight = FontWeight.Bold) }
             )
         }
     ) { innerPadding ->
@@ -74,15 +81,7 @@ fun GetAllFav(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            OutlinedTextField(
-                value = "",
-                onValueChange = { /* TODO: Implement search functionality */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text("Search") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
-            )
+
 
             when {
                 getAllFav.value.isLoading   -> {

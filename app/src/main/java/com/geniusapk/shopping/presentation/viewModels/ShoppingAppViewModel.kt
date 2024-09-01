@@ -1,6 +1,7 @@
 package com.geniusapk.shopping.presentation.viewModels
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,6 +27,7 @@ import com.geniusapk.shopping.domain.useCase.GetCheckOutUseCase
 import com.geniusapk.shopping.domain.useCase.GetSpecifiCategoryItems
 import com.geniusapk.shopping.domain.useCase.GetUserUseCase
 import com.geniusapk.shopping.domain.useCase.LoginUserUseCase
+import com.geniusapk.shopping.domain.useCase.SearchProductsUseCase
 import com.geniusapk.shopping.domain.useCase.UnfavUseCase
 import com.geniusapk.shopping.domain.useCase.UpDateUserDataUseCase
 import com.geniusapk.shopping.domain.useCase.getCategoryInLimit
@@ -33,13 +35,19 @@ import com.geniusapk.shopping.domain.useCase.getProductByID
 import com.geniusapk.shopping.domain.useCase.getProductsInLimitUseCase
 import com.geniusapk.shopping.domain.useCase.userProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.debounce
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class ShoppingAppViewModel @Inject constructor(
     private val createUserUseCase: CreateUserUseCase,
@@ -60,11 +68,14 @@ class ShoppingAppViewModel @Inject constructor(
     private val getBannerUseCase: GetBannerUseCase,
     private val getSpecifiCategoryItems: GetSpecifiCategoryItems,
     private val deleteFromCartUseCase: DeleteFromCartUseCase,
-    private val unFavUseCase: UnfavUseCase
+    private val unFavUseCase: UnfavUseCase,
+    private val SearchProductsUseCase: SearchProductsUseCase
     ) : ViewModel() {
 
     private val _singUpScreenState = MutableStateFlow(SignUpScreenState())
     val singUpScreenState = _singUpScreenState.asStateFlow()
+
+
 
     private val _loginScreenState = MutableStateFlow(LoginScreenState())
     val loginScreenState = _loginScreenState.asStateFlow()
@@ -124,8 +135,61 @@ class ShoppingAppViewModel @Inject constructor(
     private val _unFavState = MutableStateFlow(UnFavState())
     val unFavState = _unFavState.asStateFlow()
 
+     val _searchQuery = MutableStateFlow("") // Query state flow
+
+    private val _searchProductsState = MutableStateFlow(SearchProductsState())
+    val searchProductsState = _searchProductsState.asStateFlow()
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+    }
+
+
+    fun searchQuery(){
+        viewModelScope.launch(context = Dispatchers.IO) {
+            _searchQuery
+                .debounce(500L) // 500ms debounce time
+                .distinctUntilChanged()
+                .collect { query ->
+                    if (query.isNotEmpty()) {
+                        searchProducts(query)
+                    }
+                }
+        }
+    }
+
+    fun searchProducts(query: String){
+        Log.d("Search", "Searching for: $query")
+
+        viewModelScope.launch(Dispatchers.IO) {
+            SearchProductsUseCase.searchProducts(query).collect{
+                when(it){
+                    is ResultState.Error -> {
+                        _searchProductsState.value = _searchProductsState.value.copy(
+                            isLoading = false,
+                            errorMessage = it.message
+                        )
+                    }
+                    is ResultState.Loading -> {
+                        _searchProductsState.value = _searchProductsState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is ResultState.Success -> {
+                        Log.d("Search", "Search results: ${it.data}")
+                        _searchProductsState.value = _searchProductsState.value.copy(
+                            isLoading = false,
+                            userData = it.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+
     fun unFav(itemID: String){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             unFavUseCase.unfav(itemId = itemID).collect{
                 when(it){
                     is ResultState.Error -> {
@@ -150,7 +214,7 @@ class ShoppingAppViewModel @Inject constructor(
     }
 
     fun deleteFromCart(itemID: String){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
         deleteFromCartUseCase.deleteFromCart(itemID).collect{
             when(it){
                 is ResultState.Error -> {
@@ -180,7 +244,7 @@ class ShoppingAppViewModel @Inject constructor(
     fun getSpecifiCategoryItems(
         categoryName : String
     ){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getSpecifiCategoryItems.getSpecifiCategoryItems(categoryName).collect{
                 when(it){
                     is ResultState.Error -> {
@@ -241,7 +305,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun getAllCategories(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getAllCategoriesUseCase.getAllCategoriesUseCase().collect{
                 when(it){
                     is ResultState.Error -> {
@@ -269,7 +333,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun getCart(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getCartUseCase.getCart().collect {
                 when(it){
                     is ResultState.Error -> {
@@ -297,7 +361,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun getAllProducts(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getAllProductsUseCase.getAllProduct().collect{
                 when(it){
                     is ResultState.Loading -> {
@@ -326,7 +390,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun getAllFav(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getAllFavUseCase.getAllFav().collect{
                 when(it){
                     is ResultState.Error -> {
@@ -354,7 +418,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun addToFav(favDataModel : FavDataModel){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             addtoFavUseCase.addtoFav(favDataModel).collect{
                 when(it){
                     is ResultState.Error -> {
@@ -384,7 +448,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun getProductByID(productId: String){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getProductByID.getProductById(productId).collect{
                 when(it){
                     is ResultState.Error -> {
@@ -414,7 +478,7 @@ class ShoppingAppViewModel @Inject constructor(
     fun addToCart(
         cartDataModels: CartDataModels
     ){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             addtoCardUseCase.addtoCard( cartDataModels ).collect{
                 when(it){
                     is ResultState.Error -> {
@@ -445,6 +509,8 @@ class ShoppingAppViewModel @Inject constructor(
 
     init {
         loadHomeScreenData()
+        searchQuery()
+
     }
 
 
@@ -454,7 +520,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun loadHomeScreenData() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             combine(
                 getCategoryInLimit.getCategoriesInLimited(),
                 getProductsInLimitUseCase.getProductsInLimit(),
@@ -491,7 +557,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun upLoadUserProfileImage(uri: Uri) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             userProfileImageUseCase.userProfileImage(uri).collect {
                 when (it) {
                     is ResultState.Error -> {
@@ -522,7 +588,7 @@ class ShoppingAppViewModel @Inject constructor(
     fun upDateUserData(
         userDataParent: UserDataParent
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             upDateUserDataUseCase.upDateUserData(userDataParent = userDataParent).collect {
                 when (it) {
                     is ResultState.Error -> {
@@ -552,7 +618,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun createUser(userData: UserData) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             createUserUseCase.createUser(userData).collect {
                 when (it) {
                     is ResultState.Error -> {
@@ -582,7 +648,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun loginUser(userData: UserData) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             loginUserUseCase.loginUser(userData).collect {
                 when (it) {
                     is ResultState.Error -> {
@@ -612,7 +678,7 @@ class ShoppingAppViewModel @Inject constructor(
 
 
     fun getUserById(uid: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getUserUseCase.getuserById(uid).collectLatest {
                 when (it) {
                     is ResultState.Error -> {
@@ -757,6 +823,13 @@ data class UnFavState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     var userData: String? = null
+
+)
+
+data class SearchProductsState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val userData: List<ProductDataModels?> = emptyList()
 
 )
 

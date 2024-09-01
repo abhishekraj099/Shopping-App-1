@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +48,8 @@ import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
 import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
 import com.geniusapk.shopping.ui.theme.SweetPink
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,6 +63,7 @@ fun CheckOutScreenUi(
     val state = viewModel.getProductByIDState.collectAsStateWithLifecycle()
     val productData = state.value.userData
 
+    val coroutineScope = rememberCoroutineScope()
     val email = remember { mutableStateOf("") }
     val country = remember { mutableStateOf("") }
     val firstName = remember { mutableStateOf("") }
@@ -73,13 +77,20 @@ fun CheckOutScreenUi(
 
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getProductByID(productID)
+        coroutineScope.launch(Dispatchers.IO) {
+
+            viewModel.getProductByID(productID)
+        }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Shipping") },
+                title = {
+                    Text(
+                        "Shipping", fontWeight = FontWeight.Bold,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -90,45 +101,45 @@ fun CheckOutScreenUi(
     ) { innerPadding ->
 
 
-            when {
-                state.value.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AnimatedLoading()
-                    }
+        when {
+            state.value.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AnimatedLoading()
                 }
+            }
 
-                state.value.errorMessage != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Spacer(modifier = Modifier.padding(8.dp))
-                        Text("Sorry, Unable to Get Information")
-                    }
+            state.value.errorMessage != null -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    Text("Sorry, Unable to Get Information")
                 }
+            }
 
-                state.value.userData == null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AnimatedEmpty()
-                    }
+            state.value.userData == null -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AnimatedEmpty()
                 }
+            }
 
-                else -> {
+            else -> {
 
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                            .verticalScroll(rememberScrollState())
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .verticalScroll(rememberScrollState())
 
-                            .padding(16.dp)
-                    ) {
+                        .padding(16.dp)
+                ) {
 
 
                     Row(verticalAlignment = Alignment.CenterVertically) {

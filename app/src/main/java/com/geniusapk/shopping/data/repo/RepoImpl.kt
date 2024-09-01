@@ -411,6 +411,28 @@ class RepoImpl @Inject constructor(
         }
     }
 
+    override fun searchProducts(query: String): Flow<ResultState<List<ProductDataModels>>> =
+        callbackFlow {
+            trySend(ResultState.Loading)
+            firebaseFirestore.collection("Products") .orderBy("name")
+                .startAt(query).get()
+                .addOnSuccessListener {
+                    val products = it.documents.mapNotNull { document ->
+                        document.toObject(ProductDataModels::class.java)?.apply {
+                            productId = document.id
+                        }
+                    }
+                    trySend(ResultState.Success(products))
+                }.addOnFailureListener {
+                trySend(ResultState.Error(it.toString()))
+            }
+            awaitClose {
+                close()
+            }
+        }
+
+
+
 
     // this is test , i am takeing user tocken in firebase
     fun updateFcmToken(userId: String) {
@@ -422,4 +444,8 @@ class RepoImpl @Inject constructor(
             }
         }
     }
+
 }
+
+
+

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +32,8 @@ import com.geniusapk.shopping.presentation.screens.utils.AnimatedEmpty
 import com.geniusapk.shopping.presentation.screens.utils.AnimatedLoading
 import com.geniusapk.shopping.presentation.screens.utils.ProductItem
 import com.geniusapk.shopping.presentation.viewModels.ShoppingAppViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,8 +45,11 @@ fun GetAllProducts(
 
     val productData = getAllProductsState.value.userData ?: emptyList()
 
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = Unit) {
-        viewModel.getAllProducts()
+        coroutineScope.launch(Dispatchers.IO) {
+
+        viewModel.getAllProducts()}
     }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
